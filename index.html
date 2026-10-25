@@ -1,282 +1,804 @@
-const $ = (id) => document.getElementById(id);
 
-function page(id) {
-  document.querySelectorAll(".screen").forEach((screen) => {
-    screen.classList.toggle("active", screen.id === id);
-  });
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#170b17">
+  <title>Play Suite 💗</title>
 
-  document.querySelectorAll("nav button").forEach((button) => {
-    button.classList.toggle("active", button.dataset.page === id);
-  });
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-const tasks = {
-  love: [
-    "Give a heartfelt compliment.",
-    "Share three things you appreciate.",
-    "Hold hands, if both feel comfortable.",
-    "Share a favourite memory.",
-    "Choose a romantic song together.",
-    "Describe your perfect date.",
-    "Give a gentle shoulder massage, with permission.",
-    "Invent a secret handshake.",
-    "Tell a favourite joke.",
-    "Ask what makes you feel appreciated."
-  ],
-  flirty: [
-    "Give a playful compliment.",
-    "Do your best dramatic wink.",
-    "Choose a song for your partner.",
-    "Act out a romantic movie scene.",
-    "Hold eye contact for 10 seconds, if comfortable.",
-    "Invent a secret couple handshake.",
-    "Share a charming pickup line.",
-    "Choose a mystery activity.",
-    "Do a silly runway walk.",
-    "Suggest a fun activity to do together."
-  ]
-};
-
-const colors = [
-  "#7f2446", "#c0446a", "#64203d", "#e26b92", "#91345c",
-  "#ad4a70", "#592039", "#d75b83", "#77304d", "#b13a66"
-];
-
-function drawWheel(id, list) {
-  const canvas = $(id);
-  if (!canvas) return;
-
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-
-  const size = canvas.width;
-  const center = size / 2;
-  const radius = center - 10;
-  const step = (2 * Math.PI) / list.length;
-
-  ctx.clearRect(0, 0, size, size);
-
-  list.forEach((task, i) => {
-    const start = -Math.PI / 2 + i * step;
-
-    ctx.beginPath();
-    ctx.moveTo(center, center);
-    ctx.arc(center, center, radius, start, start + step);
-    ctx.closePath();
-    ctx.fillStyle = colors[i % colors.length];
-    ctx.fill();
-    ctx.strokeStyle = "#f9d5e3";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    ctx.save();
-    ctx.translate(center, center);
-    ctx.rotate(start + step / 2);
-    ctx.fillStyle = "#fff";
-    ctx.font = "bold 13px Arial";
-    ctx.textAlign = "right";
-    ctx.textBaseline = "middle";
-    ctx.fillText((i + 1) + ". " + task.slice(0, 19), radius - 15, 0);
-    ctx.restore();
-  });
-}
-
-let rotations = { love: 0, flirty: 0 };
-let busy = { love: false, flirty: false };
-
-function spin(mode) {
-  if (!tasks[mode] || busy[mode]) return;
-
-  const canvas = $(mode === "love" ? "wheel1" : "wheel2");
-  const result = $(mode + "Result");
-  if (!canvas || !result) return;
-
-  busy[mode] = true;
-
-  const list = tasks[mode];
-  const index = Math.floor(Math.random() * list.length);
-  const step = 360 / list.length;
-  const current = ((rotations[mode] % 360) + 360) % 360;
-  const target = ((360 - (index + 0.5) * step) % 360 + 360) % 360;
-  const extra = (target - current + 360) % 360;
-
-  rotations[mode] += 360 * 5 + extra;
-
-  canvas.style.transition = "transform 4s cubic-bezier(.12,.7,.12,1)";
-  canvas.style.transform = `rotate(${rotations[mode]}deg)`;
-  result.textContent = "The wheel is spinning…";
-
-  window.setTimeout(() => {
-    result.textContent = list[index];
-    busy[mode] = false;
-  }, 4100);
-}
-
-function skip(mode) {
-  const result = $(mode + "Result");
-  if (result) result.textContent = "Skipped! Try again whenever you're ready.";
-}
-
-const truth = [
-  "What small gesture makes you feel appreciated?",
-  "What is your favourite memory?",
-  "What would your dream day look like?",
-  "What new activity would you like to try?",
-  "What quality do you admire most in your partner?",
-  "What song reminds you of a happy memory?",
-  "What helps you feel understood?",
-  "What would you love to learn together?"
-];
-
-const dare = [
-  "Give a genuine compliment.",
-  "Do a 15-second silly dance.",
-  "Invent a cute nickname.",
-  "Act out a movie scene.",
-  "Choose a song for a mini dance.",
-  "Name three things you appreciate.",
-  "Make up a two-line poem.",
-  "Make a funny pose together."
-];
-
-let lastMode = "truth";
-let lastPrompt = "";
-
-function pick(list, previous = "") {
-  const options = list.filter((item) => item !== previous);
-  const choices = options.length ? options : list;
-  return choices[Math.floor(Math.random() * choices.length)];
-}
-
-function promptGame(mode) {
-  if (mode !== "truth" && mode !== "dare") mode = "truth";
-
-  lastMode = mode;
-  lastPrompt = pick(mode === "truth" ? truth : dare, lastPrompt);
-
-  const result = $("truthResult");
-  if (result) {
-    result.textContent =
-      (mode === "truth" ? "💌 TRUTH: " : "⚡ DARE: ") + lastPrompt;
-  }
-}
-
-const diceTasks = {
-  1: "Give a heartfelt compliment.",
-  2: "Choose a song for a short dance.",
-  3: "Share a favourite memory.",
-  4: "Invent a secret handshake.",
-  5: "Describe your dream day.",
-  6: "Ask your partner a sweet question."
-};
-
-const faces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
-
-function rollDice() {
-  const button = $("rollBtn");
-  if (!button || button.disabled) return;
-
-  button.disabled = true;
-
-  let count = 0;
-  const timer = window.setInterval(() => {
-    const number = 1 + Math.floor(Math.random() * 6);
-    $("die").textContent = faces[number - 1];
-
-    count++;
-
-    if (count >= 12) {
-      window.clearInterval(timer);
-
-      const finalNumber = 1 + Math.floor(Math.random() * 6);
-      $("die").textContent = faces[finalNumber - 1];
-      $("diceResult").textContent =
-        "You rolled " + finalNumber + " — " + diceTasks[finalNumber];
-
-      button.disabled = false;
+  <style>
+    :root {
+      --bg: #120912;
+      --panel: #241323;
+      --panel2: #32172b;
+      --pink: #ff78a8;
+      --light: #ffe4ee;
+      --muted: #d3b4c4;
+      --border: #563047;
     }
-  }, 90);
-}
 
-const cardSets = {
-  pose: [
-    "Create a heart shape with your hands.",
-    "Try a funny superhero pose.",
-    "Re-create a movie-poster pose.",
-    "Strike a red-carpet pose.",
-    "Make matching silly faces."
-  ],
-  question: [
-    "What makes you feel most appreciated?",
-    "What memory always makes you smile?",
-    "What would your ideal day include?",
-    "What is one thing you admire about yourself?",
-    "What goal would you like support with?"
-  ],
-  flirty: [
-    "Give a playful compliment.",
-    "Choose a favourite song.",
-    "Invent a charming pickup line.",
-    "Hold eye contact for 10 seconds, if comfortable.",
-    "Describe your perfect celebration outfit."
-  ]
-};
+    * { box-sizing: border-box; }
 
-let lastCardMode = "pose";
-let lastCard = "";
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--light);
+      background:
+        radial-gradient(ellipse at top, #3d1832 0%, transparent 48%),
+        var(--bg);
+      font-family: Arial, Helvetica, sans-serif;
+    }
 
-function draw(mode) {
-  if (!cardSets[mode]) mode = "pose";
+    button { font: inherit; }
 
-  lastCardMode = mode;
-  lastCard = pick(cardSets[mode], lastCard);
+    button:focus-visible {
+      outline: 3px solid white;
+      outline-offset: 3px;
+    }
 
-  const result = $("cardResult");
-  if (result) result.textContent = lastCard;
-}
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 6%;
+      border-bottom: 1px solid var(--border);
+      background: rgba(18, 9, 18, .92);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      backdrop-filter: blur(12px);
+    }
 
-const sweetGames = [
-  ["Compliment Challenge", "Take turns giving sincere compliments."],
-  ["Memory Lane", "Each person shares a favourite memory."],
-  ["Dream Day", "Plan an imaginary perfect day together."],
-  ["Appreciation", "Share what makes you feel appreciated."],
-  ["Song Match", "Choose a song that reminds you of a happy time."],
-  ["Two Truths", "Share two true things the other person may not know."]
-];
+    .brand {
+      color: var(--pink);
+      font-weight: 800;
+      font-size: 22px;
+      cursor: pointer;
+    }
 
-function sweetGame() {
-  const item = pick(sweetGames.map((game) => game[0]));
-  const game = sweetGames.find((entry) => entry[0] === item);
+    .brand span { color: white; }
 
-  if (game) {
-    $("sweetTitle").textContent = game[0];
-    $("sweetResult").textContent = game[1];
-  }
-}
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      justify-content: flex-end;
+    }
 
-function initialisePlaySuite() {
-  // Reconnect the navigation buttons.
-  document.querySelectorAll("#nav button[data-page]").forEach((button) => {
-    button.addEventListener("click", () => page(button.dataset.page));
-  });
+    nav button {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      padding: 9px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
 
-  // Draw both wheels after the HTML has loaded.
-  drawWheel("wheel1", tasks.love);
-  drawWheel("wheel2", tasks.flirty);
+    nav button:hover,
+    nav button.active {
+      color: white;
+      background: var(--panel2);
+      border-color: var(--border);
+    }
 
-  // Show the home screen if no screen is currently active.
-  if (!document.querySelector(".screen.active")) {
-    page("home");
-  }
+    main {
+      width: min(1050px, 92%);
+      margin: 0 auto;
+      padding: 35px 0 65px;
+      min-height: 75vh;
+    }
 
-  console.log("Play Suite loaded successfully.");
-}
+    .screen { display: none; }
+    .screen.active { display: block; animation: appear .25s ease; }
 
-// Works whether the HTML is still loading or has already loaded.
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initialisePlaySuite);
-} else {
-  initialisePlaySuite();
-}
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(7px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      text-align: center;
+      padding: 38px 15px 32px;
+    }
+
+    .eyebrow {
+      color: var(--pink);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    h1 {
+      font-size: clamp(34px, 7vw, 62px);
+      line-height: 1.08;
+      margin: 15px 0;
+    }
+
+    h1 span { color: var(--pink); }
+
+    h2 { margin-top: 0; font-size: 27px; }
+    h3 { margin-top: 0; }
+
+    p { line-height: 1.7; color: var(--muted); }
+
+    .subtitle {
+      max-width: 570px;
+      margin: 0 auto;
+      font-size: 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .game-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+      width: 100%;
+      min-height: 190px;
+      padding: 22px;
+      border-radius: 19px;
+      border: 1px solid var(--border);
+      color: white;
+      background: linear-gradient(145deg, var(--panel2), var(--panel));
+      cursor: pointer;
+      transition: transform .2s, border-color .2s;
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--pink);
+    }
+
+    .game-icon { font-size: 35px; margin-bottom: 15px; }
+    .game-card strong { font-size: 18px; }
+    .game-card small { color: var(--muted); margin-top: 8px; line-height: 1.5; }
+
+    .panel {
+      border: 1px solid var(--border);
+      background: rgba(36, 19, 35, .92);
+      border-radius: 22px;
+      padding: clamp(18px, 4vw, 32px);
+      margin-top: 22px;
+    }
+
+    .game-heading { text-align: center; padding: 12px 0; }
+    .game-heading p { max-width: 570px; margin: 0 auto; }
+
+    .button-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      color: white;
+      background: #48213c;
+      border-radius: 12px;
+      padding: 12px 19px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: filter .2s, transform .2s;
+    }
+
+    .btn:hover { filter: brightness(1.2); transform: translateY(-1px); }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #ff76a6, #d64180);
+      color: #260c1b;
+      border-color: transparent;
+    }
+
+    .btn.secondary { background: transparent; }
+    .btn:disabled { opacity: .6; cursor: wait; }
+
+    .result {
+      border: 1px solid var(--border);
+      background: #180d19;
+      border-radius: 15px;
+      padding: 20px;
+      margin-top: 20px;
+      text-align: center;
+      font-size: 18px;
+      line-height: 1.6;
+      min-height: 68px;
+      overflow-wrap: anywhere;
+    }
+
+    .wheel-wrap {
+      position: relative;
+      width: min(350px, 85vw);
+      margin: 25px auto;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 50%;
+      filter: drop-shadow(0 0 16px #d64c7c33);
+    }
+
+    .pointer {
+      position: absolute;
+      top: -9px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+      color: #fff;
+      font-size: 35px;
+      text-shadow: 0 2px 7px #000;
+    }
+
+    .choice-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .choice {
+      padding: 11px 18px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: white;
+      background: #180d19;
+      cursor: pointer;
+    }
+
+    .choice.active {
+      background: var(--pink);
+      color: #250b19;
+    }
+
+    .dice {
+      font-size: 100px;
+      text-align: center;
+      margin: 15px 0;
+      color: white;
+      text-shadow: 0 0 25px #ff78a866;
+    }
+
+    .playing-card {
+      width: min(300px, 85%);
+      min-height: 210px;
+      margin: 24px auto;
+      border-radius: 20px;
+      padding: 28px;
+      background: linear-gradient(145deg, #64284b, #291226);
+      border: 1px solid #b65c8a;
+      box-shadow: 0 12px 40px #0004;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .playing-card .card-icon { font-size: 38px; margin-bottom: 16px; }
+    .playing-card p { color: white; font-size: 19px; }
+
+    .back {
+      margin-bottom: 15px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 22px;
+      color: #a9899b;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    @media (max-width: 700px) {
+      header { align-items: flex-start; flex-direction: column; }
+      nav { justify-content: flex-start; }
+      nav button { padding: 8px 10px; font-size: 13px; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .game-card { min-height: 175px; padding: 16px; }
+    }
+
+    @media (max-width: 420px) {
+      .grid { grid-template-columns: 1fr; }
+      .game-card { min-height: 130px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="brand" onclick="page('home')">💗 Play <span>Suite</span></div>
+    <nav id="nav" aria-label="Main navigation">
+      <button type="button" data-page="home" class="active">Home</button>
+      <button type="button" data-page="loving">Love Wheel</button>
+      <button type="button" data-page="flirty">Flirty Wheel</button>
+      <button type="button" data-page="truth">Truth or Dare</button>
+      <button type="button" data-page="dice">Dice</button>
+      <button type="button" data-page="cards">Cards</button>
+      <button type="button" data-page="sweet">Sweet Games</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="screen active" id="home">
+      <div class="hero">
+        <div class="eyebrow">Your little world of fun</div>
+        <h1>Make every moment<br><span>feel special.</span></h1>
+        <p class="subtitle">
+          Spin a wheel, ask a question, draw a card, or discover a new
+          activity. Pick a game and let the fun begin.
+        </p>
+      </div>
+
+      <div class="grid">
+        <button class="game-card" onclick="page('loving')">
+          <span class="game-icon">💗</span>
+          <strong>Love Wheel</strong>
+          <small>Sweet challenges and thoughtful moments.</small>
+        </button>
+
+        <button class="game-card" onclick="page('flirty')">
+          <span class="game-icon">🌹</span>
+          <strong>Flirty Wheel</strong>
+          <small>Playful, charming, feel-good prompts.</small>
+        </button>
+
+        <button class="game-card" onclick="page('truth')">
+          <span class="game-icon">💌</span>
+          <strong>Truth or Dare</strong>
+          <small>Questions, laughs and lighthearted dares.</small>
+        </button>
+
+        <button class="game-card" onclick="page('dice')">
+          <span class="game-icon">🎲</span>
+          <strong>Lucky Dice</strong>
+          <small>Roll and discover your next challenge.</small>
+        </button>
+
+        <button class="game-card" onclick="page('cards')">
+          <span class="game-icon">🃏</span>
+          <strong>Prompt Cards</strong>
+          <small>Reveal a question, pose or playful prompt.</small>
+        </button>
+
+        <button class="game-card" onclick="page('sweet')">
+          <span class="game-icon">✨</span>
+          <strong>Sweet Games</strong>
+          <small>Random mini-games to play together.</small>
+        </button>
+      </div>
+    </section>
+
+    <section class="screen" id="loving">
+      <button class="btn secondary back" onclick="page('home')">← Home</button>
+      <div class="game-heading">
+        <div class="eyebrow">A little kindness goes a long way</div>
+        <h2>💗 Love Wheel</h2>
+        <p>Spin the wheel to reveal a thoughtful activity. You can always skip a prompt.</p>
+      </div>
+      <div class="panel">
+        <div class="wheel-wrap">
+          <div class="pointer">▼</div>
+          <canvas id="wheel1" width="400" height="400" aria-label="Love wheel"></canvas>
+        </div>
+        <div class="button-row">
+          <button class="btn primary" onclick="spin('love')">💗 Spin the Wheel</button>
+          <button class="btn secondary" onclick="skip('love')">Skip</button>
+        </div>
+        <div class="result" id="loveResult" aria-live="polite">Your next lovely moment is waiting…</div>
+      </div>
+    </section>
+
+    <section class="screen" id="flirty">
+      <button class="btn secondary back" onclick="page('home')">← Home</button>
+      <div class="game-heading">
+        <div class="eyebrow">Playful and charming</div>
+        <h2>🌹 Flirty Wheel</h2>
+        <p>Spin for a fun, sweet challenge. Choose only what feels comfortable.</p>
+      </div>
+      <div class="panel">
+        <div class="wheel-wrap">
+          <div class="pointer">▼</div>
+          <canvas id="wheel2" width="400" height="400" aria-label="Flirty wheel"></canvas>
+        </div>
+        <div class="button-row">
+          <button class="btn primary" onclick="spin('flirty')">🌹 Spin the Wheel</button>
+          <button class="btn secondary" onclick="skip('flirty')">Skip</button>
+        </div>
+        <div class="result" id="flirtyResult" aria-live="polite">Let's see what the wheel chooses…</div>
+      </div>
+    </section>
+
+    <section class="screen" id="truth">
+      <button class="btn secondary back" onclick="page('home')">← Home</button>
+      <div class="game-heading">
+        <div class="eyebrow">Questions and silly challenges</div>
+        <h2>💌 Truth or Dare</h2>
+        <p>Pick a mode, then generate a prompt. Passing is always allowed.</p>
+      </div>
+      <div class="panel">
+        <div class="choice-row">
+          <button class="choice active" id="truthChoice" onclick="promptGame('truth')">💌 Truth</button>
+          <button class="choice" id="dareChoice" onclick="promptGame('dare')">⚡ Dare</button>
+        </div>
+        <div class="result" id="truthResult" aria-live="polite">
+          Choose Truth or Dare to get started!
+        </div>
+        <div class="button-row">
+          <button class="btn primary" onclick="promptGame(currentMode)">✨ New Prompt</button>
+          <button class="btn secondary" onclick="skipPrompt()">Skip</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="dice">
+      <button class="btn secondary back" onclick="page('home')">← Home</button>
+      <div class="game-heading">
+        <div class="eyebrow">Let luck decide</div>
+        <h2>🎲 Lucky Dice</h2>
+        <p>Roll the dice to discover a random mini-challenge.</p>
+      </div>
+      <div class="panel">
+        <div class="dice" id="die" aria-live="polite">⚀</div>
+        <div class="button-row">
+          <button class="btn primary" id="rollBtn" onclick="rollDice()">🎲 Roll Dice</button>
+        </div>
+        <div class="result" id="diceResult" aria-live="polite">Ready when you are!</div>
+      </div>
+    </section>
+
+    <section class="screen" id="cards">
+      <button class="btn secondary back" onclick="page('home')">← Home</button>
+      <div class="game-heading">
+        <div class="eyebrow">Pick a card, discover a prompt</div>
+        <h2>🃏 Prompt Cards</h2>
+        <p>Choose a category and reveal a new card.</p>
+      </div>
+      <div class="panel">
+        <div class="choice-row">
+          <button class="choice active" onclick="setCardMode('pose', this)">🎭 Poses</button>
+          <button class="choice" onclick="setCardMode('question', this)">💭 Questions</button>
+          <button class="choice" onclick="setCardMode('flirty', this)">🌹 Playful</button>
+        </div>
+        <div class="playing-card">
+          <div class="card-icon">💗</div>
+          <p id="cardResult" aria-live="polite">Tap Draw Card to reveal your first prompt.</p>
+        </div>
+        <div class="button-row">
+          <button class="btn primary" onclick="draw()">🃏 Draw Card</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="sweet">
+      <button class="btn secondary back" onclick="page('home')">← Home</button>
+      <div class="game-heading">
+        <div class="eyebrow">Little moments, big smiles</div>
+        <h2>✨ Sweet Games</h2>
+        <p>Generate a quick mini-game to play together.</p>
+      </div>
+      <div class="panel">
+        <div style="text-align:center;font-size:60px;margin:12px">🌸</div>
+        <h2 id="sweetTitle" style="text-align:center">Your next mini-game</h2>
+        <div class="result" id="sweetResult" aria-live="polite">
+          Tap the button to discover a game!
+        </div>
+        <div class="button-row">
+          <button class="btn primary" onclick="sweetGame()">✨ Choose a Game</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>Made with 💗 for fun, kindness and memorable moments.</footer>
+
+  <script>
+    "use strict";
+
+    const $ = id => document.getElementById(id);
+
+    const gameData = {
+      love: [
+        "Give a heartfelt compliment.",
+        "Share three things you appreciate.",
+        "Share a favourite memory.",
+        "Choose a romantic song together.",
+        "Describe your perfect day.",
+        "Invent a secret handshake.",
+        "Tell a favourite joke.",
+        "Ask what makes you feel appreciated.",
+        "Plan an imaginary dream date.",
+        "Say something kind about yourself."
+      ],
+      flirty: [
+        "Give a playful compliment.",
+        "Do your best dramatic wink.",
+        "Choose a song for the other person.",
+        "Act out a romantic movie scene.",
+        "Hold eye contact for 10 seconds, if comfortable.",
+        "Invent a secret handshake.",
+        "Share a charming pickup line.",
+        "Do a silly runway walk.",
+        "Suggest a fun activity to do together.",
+        "Make each other laugh."
+      ]
+    };
+
+    const wheelColors = [
+      "#8e315b", "#c04472", "#612444", "#e56c9b",
+      "#a53e69", "#753052", "#d65383", "#51203d",
+      "#b74d7a", "#91345e"
+    ];
+
+    let currentMode = "truth";
+    let currentCardMode = "pose";
+    let lastTruth = "";
+    let lastDare = "";
+    let lastCard = "";
+    let wheelRotation = { love: 0, flirty: 0 };
+    let wheelBusy = { love: false, flirty: false };
+
+    function page(id) {
+      const target = $(id);
+      if (!target || !target.classList.contains("screen")) return;
+
+      document.querySelectorAll(".screen").forEach(screen => {
+        screen.classList.toggle("active", screen === target);
+      });
+
+      document.querySelectorAll("#nav button").forEach(button => {
+        button.classList.toggle("active", button.dataset.page === id);
+      });
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function drawWheel(canvasId, items) {
+      const canvas = $(canvasId);
+      if (!canvas) return;
+
+      const ctx = canvas.getContext("2d");
+      const center = canvas.width / 2;
+      const radius = center - 8;
+      const slice = 2 * Math.PI / items.length;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      items.forEach((item, i) => {
+        const start = -Math.PI / 2 + i * slice;
+
+        ctx.beginPath();
+        ctx.moveTo(center, center);
+        ctx.arc(center, center, radius, start, start + slice);
+        ctx.closePath();
+        ctx.fillStyle = wheelColors[i % wheelColors.length];
+        ctx.fill();
+        ctx.strokeStyle = "#fbd6e5";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(center, center);
+        ctx.rotate(start + slice / 2);
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        ctx.font = "bold 12px Arial";
+        ctx.fillStyle = "#fff";
+        ctx.fillText((i + 1) + ". " + item.slice(0, 19), radius - 13, 0);
+        ctx.restore();
+      });
+    }
+
+    function spin(mode) {
+      if (!gameData[mode] || wheelBusy[mode]) return;
+
+      const canvas = $(mode === "love" ? "wheel1" : "wheel2");
+      const result = $(mode + "Result");
+      if (!canvas || !result) return;
+
+      wheelBusy[mode] = true;
+
+      const items = gameData[mode];
+      const index = Math.floor(Math.random() * items.length);
+      const slice = 360 / items.length;
+      const current = ((wheelRotation[mode] % 360) + 360) % 360;
+      const desired = (360 - (index + 0.5) * slice + 360) % 360;
+      const extra = (desired - current + 360) % 360;
+
+      wheelRotation[mode] += 1800 + extra;
+
+      canvas.style.transition = "transform 4s cubic-bezier(.12,.7,.12,1)";
+      canvas.style.transform = "rotate(" + wheelRotation[mode] + "deg)";
+      result.textContent = "Spinning…";
+
+      window.setTimeout(() => {
+        result.textContent = items[index];
+        wheelBusy[mode] = false;
+      }, 4100);
+    }
+
+    function skip(mode) {
+      const result = $(mode + "Result");
+      if (result) result.textContent = "Skipped! Spin again whenever you're ready.";
+    }
+
+    const truthPrompts = [
+      "What small gesture makes you feel appreciated?",
+      "What is your favourite memory?",
+      "What would your dream day look like?",
+      "What new activity would you like to try?",
+      "What quality do you admire most?",
+      "What song reminds you of a happy memory?",
+      "What helps you feel understood?",
+      "What would you love to learn together?"
+    ];
+
+    const darePrompts = [
+      "Give a genuine compliment.",
+      "Do a 15-second silly dance.",
+      "Invent a cute nickname.",
+      "Act out a movie scene.",
+      "Choose a song for a mini dance.",
+      "Name three things you appreciate.",
+      "Make up a two-line poem.",
+      "Make a funny pose."
+    ];
+
+    function randomDifferent(items, previous) {
+      const choices = items.filter(item => item !== previous);
+      const available = choices.length ? choices : items;
+      return available[Math.floor(Math.random() * available.length)];
+    }
+
+    function promptGame(mode) {
+      currentMode = mode === "dare" ? "dare" : "truth";
+
+      $("truthChoice").classList.toggle("active", currentMode === "truth");
+      $("dareChoice").classList.toggle("active", currentMode === "dare");
+
+      if (currentMode === "truth") {
+        lastTruth = randomDifferent(truthPrompts, lastTruth);
+        $("truthResult").textContent = "💌 TRUTH: " + lastTruth;
+      } else {
+        lastDare = randomDifferent(darePrompts, lastDare);
+        $("truthResult").textContent = "⚡ DARE: " + lastDare;
+      }
+    }
+
+    function skipPrompt() {
+      $("truthResult").textContent = "Skipped! Choose another prompt when you're ready.";
+    }
+
+    const diceTasks = [
+      "Give a heartfelt compliment.",
+      "Choose a song for a short dance.",
+      "Share a favourite memory.",
+      "Invent a secret handshake.",
+      "Describe your dream day.",
+      "Ask a sweet question."
+    ];
+
+    const diceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+
+    function rollDice() {
+      const button = $("rollBtn");
+      if (button.disabled) return;
+
+      button.disabled = true;
+      $("diceResult").textContent = "Rolling…";
+
+      let rolls = 0;
+      const timer = window.setInterval(() => {
+        const number = 1 + Math.floor(Math.random() * 6);
+        $("die").textContent = diceFaces[number - 1];
+        rolls++;
+
+        if (rolls >= 12) {
+          window.clearInterval(timer);
+
+          const finalNumber = 1 + Math.floor(Math.random() * 6);
+          $("die").textContent = diceFaces[finalNumber - 1];
+          $("diceResult").textContent =
+            "You rolled " + finalNumber + " — " + diceTasks[finalNumber - 1];
+
+          button.disabled = false;
+        }
+      }, 90);
+    }
+
+    const cardData = {
+      pose: [
+        "Create a heart shape with your hands.",
+        "Try a funny superhero pose.",
+        "Re-create a movie-poster pose.",
+        "Strike a red-carpet pose.",
+        "Make matching silly faces."
+      ],
+      question: [
+        "What makes you feel most appreciated?",
+        "What memory always makes you smile?",
+        "What would your ideal day include?",
+        "What is one thing you admire about yourself?",
+        "What goal would you like support with?"
+      ],
+      flirty: [
+        "Give a playful compliment.",
+        "Choose a favourite song.",
+        "Invent a charming pickup line.",
+        "Hold eye contact for 10 seconds, if comfortable.",
+        "Describe your perfect celebration."
+      ]
+    };
+
+    function setCardMode(mode, button) {
+      if (!cardData[mode]) return;
+      currentCardMode = mode;
+
+      document.querySelectorAll("#cards .choice").forEach(item => {
+        item.classList.toggle("active", item === button);
+      });
+
+      draw();
+    }
+
+    function draw() {
+      const items = cardData[currentCardMode];
+      if (!items) return;
+
+      lastCard = randomDifferent(items, lastCard);
+      $("cardResult").textContent = lastCard;
+    }
+
+    const sweetGames = [
+      ["Compliment Challenge", "Take turns giving sincere compliments."],
+      ["Memory Lane", "Each person shares a favourite memory."],
+      ["Dream Day", "Plan an imaginary perfect day together."],
+      ["Appreciation", "Share what makes you feel appreciated."],
+      ["Song Match", "Choose a song that reminds you of a happy time."],
+      ["Two Truths", "Share two true things the other person may not know."]
+    ];
+
+    let lastSweet = "";
+
+    function sweetGame() {
+      const choices = sweetGames.filter(game => game[0] !== lastSweet);
+      const available = choices.length ? choices : sweetGames;
+      const game = available[Math.floor(Math.random() * available.length)];
+
+      lastSweet = game[0];
+      $("sweetTitle").textContent = game[0];
+      $("sweetResult").textContent = game[1];
+    }
+
+    // Connect navigation controls.
+    document.querySelectorAll("#nav button[data-page]").forEach(button => {
+      button.addEventListener("click", () => page(button.dataset.page));
+    });
+
+    // Draw wheels once the page is ready.
+    drawWheel("wheel1", gameData.love);
+    drawWheel("wheel2", gameData.flirty);
+
+    console.log("Play Suite loaded successfully.");
+  </script>
+</body>
+</html>
+
