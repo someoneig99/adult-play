@@ -1,453 +1,282 @@
+const $ = (id) => document.getElementById(id);
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Play Suite | Love & Mystery</title>
-<style>
-:root{
-  --bg:#10080d;--panel:#211018;--pink:#ff6fae;
-  --rose:#a82e59;--gold:#e7c18b;--text:#fff2f6;
-  --muted:#cbb4bd;--line:#ffffff20;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;background:
-  radial-gradient(ellipse at top,#512034 0%,#1b0c14 45%,#10080d 100%);
-  color:var(--text);font-family:Arial,sans-serif;
-  min-height:100vh;
-}
-button,input{font:inherit}
-button{cursor:pointer}
-header{
-  display:flex;justify-content:space-between;align-items:center;
-  gap:12px;padding:15px 4%;border-bottom:1px solid var(--line);
-  background:#10080de8;position:sticky;top:0;z-index:5;
-}
-.logo{font-size:22px;font-weight:900;white-space:nowrap}
-.logo span{color:var(--pink)}
-nav{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-nav button,.secondary{
-  background:#ffffff09;color:var(--text);border:1px solid var(--line);
-  padding:9px 12px;border-radius:12px;
-}
-nav button.active{background:var(--rose);border-color:var(--pink)}
-main{
-  min-height:calc(100dvh - 120px);
-  display:flex;align-items:center;justify-content:center;padding:18px;
-}
-.screen{display:none;width:min(850px,100%);text-align:center}
-.screen.active{display:block;animation:appear .3s ease}
-@keyframes appear{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
-.eyebrow{color:var(--gold);letter-spacing:3px;font-size:11px}
-h1{font-size:clamp(28px,5vw,48px);margin:10px 0}
-h2{font-size:23px}
-p{color:var(--muted);line-height:1.5}
-.pink{color:var(--pink)}
-.btn{
-  background:linear-gradient(120deg,#9e2450,#f05c9a);
-  color:white;border:0;border-radius:13px;padding:13px 19px;
-  font-weight:bold;box-shadow:0 5px 25px #e94b8525;
-}
-.secondary:hover,nav button:hover{border-color:var(--pink)}
-.btn:disabled{opacity:.5}
-.buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:15px 0}
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:24px}
-.tile{
-  color:white;text-align:left;border:1px solid #e89bb333;
-  background:linear-gradient(145deg,#3b1c2b,#1b1018);
-  border-radius:17px;padding:18px;min-height:120px;
-}
-.tile:hover{border-color:var(--pink);transform:translateY(-2px)}
-.tile .emoji{font-size:27px}
-.tile h3{margin:10px 0 5px}
-.tile p{font-size:12px;margin:0}
-.panel{
-  background:#1c1019dc;border:1px solid #e8a4bf35;
-  border-radius:22px;padding:20px;margin:18px auto;
-  max-width:590px;box-shadow:0 15px 50px #0003;
-}
-.result{
-  min-height:95px;display:flex;justify-content:center;align-items:center;
-  font-size:clamp(17px,3vw,24px);line-height:1.5;
-  padding:20px;border-radius:15px;
-  background:linear-gradient(145deg,#3a1b2b,#201018);
-  border:1px solid #d85c8a45;margin:15px 0;
-}
-.wheel-layout{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:20px}
-.wheel-wrap{width:min(330px,75vw);margin:12px auto;position:relative}
-#wheelCanvas{width:100%;height:auto;display:block}
-.pointer{
- position:absolute;top:-8px;left:50%;transform:translateX(-50%);
- color:var(--gold);font-size:30px;z-index:2
-}
-.wheel-center{
- position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
- width:62px;height:62px;border-radius:50%;background:#fff4f6;
- color:#812448;display:grid;place-items:center;font-weight:900;
- border:4px solid #edb5c7;pointer-events:none;
-}
-.dice{font-size:100px;filter:drop-shadow(0 0 20px #f06a9a66)}
-input{
-  background:#170c13;color:white;border:1px solid var(--line);
-  border-radius:10px;padding:12px;width:min(240px,100%)
-}
-.small{font-size:12px}
-footer{text-align:center;padding:12px;color:#a78c98;font-size:11px}
-@media(max-width:650px){
- header{align-items:flex-start;flex-direction:column;padding:12px}
- nav{width:100%;justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto}
- nav button{white-space:nowrap;font-size:12px;padding:8px}
- main{padding:12px;align-items:flex-start}
- .screen{padding:5px 0}
- .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
- .tile{padding:13px;min-height:110px}
- .tile h3{font-size:15px}
- .wheel-layout{grid-template-columns:1fr;gap:0}
- .wheel-wrap{width:min(270px,68vw)}
- .panel{padding:15px}
-}
-</style>
-</head>
-<body>
-<header>
-  <div class="logo">PLAY <span>SUITE ♥</span></div>
-  <nav id="nav">
-    <button class="active" data-page="home">Home</button>
-    <button data-page="loving">❤️ Loving</button>
-    <button data-page="flirty">🔥 Flirty</button>
-    <button data-page="truth">Truth/Dare</button>
-    <button data-page="dice">Dice</button>
-    <button data-page="cards">Cards</button>
-    <button data-page="sweet">Sweet Games</button>
-  </nav>
-</header>
+function page(id) {
+  document.querySelectorAll(".screen").forEach((screen) => {
+    screen.classList.toggle("active", screen.id === id);
+  });
 
-<main>
-<section class="screen active" id="home">
-  <p class="eyebrow">A LITTLE ROMANCE · A LITTLE MYSTERY</p>
-  <h1>LOVE IN THE <span class="pink">SPOTLIGHT</span></h1>
-  <p>Two players. One wheel. A night full of surprises.</p>
-  <div class="grid">
-    <button class="tile" onclick="page('loving')">
-      <div class="emoji">🌹</div><h3>Loving Wheel</h3>
-      <p>Affection, care and sweet dares.</p>
-    </button>
-    <button class="tile" onclick="page('flirty')">
-      <div class="emoji">🔥</div><h3>Flirty Wheel</h3>
-      <p>Playful and mysterious challenges.</p>
-    </button>
-    <button class="tile" onclick="page('truth')">
-      <div class="emoji">💌</div><h3>Truth or Dare</h3>
-      <p>Choose a prompt for your turn.</p>
-    </button>
-    <button class="tile" onclick="page('dice')">
-      <div class="emoji">🎲</div><h3>Task Dice</h3>
-      <p>Roll to reveal a surprise.</p>
-    </button>
-    <button class="tile" onclick="page('cards')">
-      <div class="emoji">🃏</div><h3>Mystery Cards</h3>
-      <p>Questions and pose challenges.</p>
-    </button>
-    <button class="tile" onclick="page('sweet')">
-      <div class="emoji">💕</div><h3>Sweet Games</h3>
-      <p>Discover how well you know each other.</p>
-    </button>
-  </div>
-</section>
+  document.querySelectorAll("nav button").forEach((button) => {
+    button.classList.toggle("active", button.dataset.page === id);
+  });
 
-<section class="screen" id="loving">
-  <p class="eyebrow">MODE 01 · ROMANTIC & AFFECTIONATE</p>
-  <h1>THE <span class="pink">LOVING WHEEL</span> 🌹</h1>
-  <p>Let the wheel choose a sweet challenge.</p>
-  <div class="wheel-layout">
-    <div class="wheel-wrap">
-      <div class="pointer">▼</div>
-      <canvas id="wheel1" width="500" height="500"></canvas>
-      <div class="wheel-center">LOVE</div>
-    </div>
-    <div class="panel">
-      <div id="loveResult" class="result">Your romantic surprise awaits…</div>
-      <div class="buttons">
-        <button class="btn" onclick="spin('love')">SPIN THE WHEEL ♥</button>
-        <button class="secondary" onclick="skip('love')">Skip</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="screen" id="flirty">
-  <p class="eyebrow">MODE 02 · PLAYFUL & MYSTERIOUS</p>
-  <h1>THE <span class="pink">FLIRTY WHEEL</span> 🔥</h1>
-  <p>Take turns and let fate choose a playful challenge.</p>
-  <div class="wheel-layout">
-    <div class="wheel-wrap">
-      <div class="pointer">▼</div>
-      <canvas id="wheel2" width="500" height="500"></canvas>
-      <div class="wheel-center">SPICE</div>
-    </div>
-    <div class="panel">
-      <div id="flirtyResult" class="result">Ready for a little mystery?</div>
-      <div class="buttons">
-        <button class="btn" onclick="spin('flirty')">SPIN THE WHEEL 🔥</button>
-        <button class="secondary" onclick="skip('flirty')">Skip</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="screen" id="truth">
-  <p class="eyebrow">HONEST ANSWERS · FUN CHALLENGES</p>
-  <h1>TRUTH <span class="pink">OR DARE?</span></h1>
-  <div class="buttons">
-    <button class="btn" onclick="promptGame('truth')">💌 Truth</button>
-    <button class="btn" onclick="promptGame('dare')">⚡ Dare</button>
-  </div>
-  <div id="truthResult" class="result">Choose your challenge.</div>
-  <div class="buttons">
-    <button class="secondary" onclick="promptGame(lastMode)">Another prompt ↻</button>
-    <button class="secondary" onclick="page('home')">Home</button>
-  </div>
-</section>
-
-<section class="screen" id="dice">
-  <p class="eyebrow">ONE ROLL · ONE SURPRISE</p>
-  <h1>THE <span class="pink">TASK DICE</span></h1>
-  <div class="panel">
-    <div class="dice" id="die">🎲</div>
-    <div id="diceResult" class="result">What will you roll?</div>
-    <div class="buttons">
-      <button class="btn" id="rollBtn" onclick="rollDice()">ROLL DICE</button>
-      <button class="secondary" onclick="page('home')">Home</button>
-    </div>
-  </div>
-</section>
-
-<section class="screen" id="cards">
-  <p class="eyebrow">PICK A CARD · REVEAL A SECRET</p>
-  <h1>MYSTERY <span class="pink">CARDS</span></h1>
-  <div class="buttons">
-    <button class="secondary" onclick="draw('pose')">📸 Pose Cards</button>
-    <button class="secondary" onclick="draw('question')">💭 Question Cards</button>
-    <button class="secondary" onclick="draw('flirty')">✨ Flirty Cards</button>
-  </div>
-  <div id="cardResult" class="result">A surprise is waiting inside.</div>
-  <div class="buttons">
-    <button class="btn" onclick="draw(lastCardMode)">DRAW A CARD</button>
-    <button class="secondary" onclick="page('home')">Home</button>
-  </div>
-  <p class="small">Ask before taking or sharing a photo. Anyone can pass.</p>
-</section>
-
-<section class="screen" id="sweet">
-  <p class="eyebrow">GET CLOSER THROUGH KINDNESS</p>
-  <h1>SWEET <span class="pink">GAMES</span> 💕</h1>
-  <div class="panel">
-    <h2 id="sweetTitle">How well do you know each other?</h2>
-    <div id="sweetResult" class="result">Press below for a sweet game.</div>
-    <div class="buttons">
-      <button class="btn" onclick="sweetGame()">SURPRISE US</button>
-      <button class="secondary" onclick="page('home')">Home</button>
-    </div>
-  </div>
-</section>
-</main>
-<footer>Play Suite ♥ · Respect boundaries · Every player can skip any challenge.</footer>
-
-<script>
-const $ = id => document.getElementById(id);
-
-function page(id){
-  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
-  $(id).classList.add('active');
-  document.querySelectorAll('nav button').forEach(b=>
-    b.classList.toggle('active',b.dataset.page===id));
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
-document.querySelectorAll('nav button').forEach(b=>
-  b.addEventListener('click',()=>page(b.dataset.page)));
 
-const tasks={
- love:[
-  "Give your partner a gentle hand massage.",
-  "Share three things you appreciate about your partner.",
-  "Cuddle, if both of you feel comfortable.",
-  "Give a gentle shoulder massage, with permission.",
-  "Tell your partner a favourite memory together.",
-  "Hold hands and maintain eye contact for 20 seconds.",
-  "Give your partner a heartfelt compliment.",
-  "Choose a romantic song and dance together.",
-  "Describe your idea of a perfect date.",
-  "Ask your partner what makes them feel cared for."
- ],
- flirty:[
-  "Whisper a sweet compliment.",
-  "Give your best playful wink.",
-  "Let your partner choose a romantic song.",
-  "Do a dramatic romantic movie scene.",
-  "Hold eye contact for 10 seconds.",
-  "Invent a secret couple handshake.",
-  "Give your partner a charming pickup line.",
-  "Choose a mystery date-night activity.",
-  "Do a silly slow-motion runway walk.",
-  "Ask your partner to choose your next kind gesture."
- ]
+const tasks = {
+  love: [
+    "Give a heartfelt compliment.",
+    "Share three things you appreciate.",
+    "Hold hands, if both feel comfortable.",
+    "Share a favourite memory.",
+    "Choose a romantic song together.",
+    "Describe your perfect date.",
+    "Give a gentle shoulder massage, with permission.",
+    "Invent a secret handshake.",
+    "Tell a favourite joke.",
+    "Ask what makes you feel appreciated."
+  ],
+  flirty: [
+    "Give a playful compliment.",
+    "Do your best dramatic wink.",
+    "Choose a song for your partner.",
+    "Act out a romantic movie scene.",
+    "Hold eye contact for 10 seconds, if comfortable.",
+    "Invent a secret couple handshake.",
+    "Share a charming pickup line.",
+    "Choose a mystery activity.",
+    "Do a silly runway walk.",
+    "Suggest a fun activity to do together."
+  ]
 };
 
-const colors=["#7f2446","#c0446a","#64203d","#e26b92",
-              "#91345c","#ad4a70","#592039","#d75b83",
-              "#77304d","#b13a66"];
-
-function drawWheel(id,list){
- const canvas=$(id),ctx=canvas.getContext('2d');
- const n=list.length,step=2*Math.PI/n;
- ctx.clearRect(0,0,500,500);
- list.forEach((task,i)=>{
-  const start=-Math.PI/2+i*step;
-  ctx.beginPath();ctx.moveTo(250,250);
-  ctx.arc(250,250,240,start,start+step);
-  ctx.closePath();ctx.fillStyle=colors[i%colors.length];ctx.fill();
-  ctx.strokeStyle="#f9d5e3";ctx.lineWidth=2;ctx.stroke();
-  ctx.save();ctx.translate(250,250);ctx.rotate(start+step/2);
-  ctx.fillStyle="#fff";ctx.font="bold 13px Arial";
-  ctx.textAlign="right";ctx.textBaseline="middle";
-  ctx.fillText((i+1)+". "+task.slice(0,19),222,0);
-  ctx.restore();
- });
-}
-drawWheel("wheel1",tasks.love);
-drawWheel("wheel2",tasks.flirty);
-
-let rotations={love:0,flirty:0},busy={love:false,flirty:false};
-function spin(mode){
- if(busy[mode])return;
- busy[mode]=true;
- const list=tasks[mode],idx=Math.floor(Math.random()*list.length);
- const canvas=$(mode==="love"?"wheel1":"wheel2");
- const step=360/list.length;
- // The selected slice is placed beneath the fixed pointer at the top.
- const current=((rotations[mode]%360)+360)%360;
- const desired=((360-(idx+.5)*step)%360+360)%360;
- const extra=(desired-current+360)%360;
- rotations[mode]+=360*5+extra;
- canvas.style.transition="transform 4s cubic-bezier(.12,.7,.12,1)";
- canvas.style.transform=`rotate(${rotations[mode]}deg)`;
- $(mode+"Result").textContent="The wheel is spinning…";
- setTimeout(()=>{
-  $(mode+"Result").textContent=list[idx];
-  busy[mode]=false;
- },4100);
-}
-function skip(mode){
- $(mode+"Result").textContent="Skipped! Spin again whenever you're ready.";
-}
-
-const truth=[
- "What small gesture makes you feel appreciated?",
- "What is your favourite memory with your partner?",
- "What would your dream date look like?",
- "What is something new you would enjoy trying together?",
- "What quality do you admire most in your partner?",
- "What song reminds you of a happy memory?",
- "What helps you feel understood?",
- "What is something you would love to learn together?"
+const colors = [
+  "#7f2446", "#c0446a", "#64203d", "#e26b92", "#91345c",
+  "#ad4a70", "#592039", "#d75b83", "#77304d", "#b13a66"
 ];
-const dare=[
- "Give a genuine compliment.",
- "Do a 15-second silly dance.",
- "Invent a cute nickname for your partner.",
- "Act out your first meeting like a movie.",
- "Choose a song for a mini dance together.",
- "Tell your partner three things you appreciate.",
- "Make up a two-line love poem.",
- "Re-create a favourite photo pose, if both agree."
-];
-let lastMode="truth",lastPrompt="",lastCardMode="pose",lastCard="";
-function pick(list,last){
- const options=list.filter(x=>x!==last);
- return options[Math.floor(Math.random()*options.length)];
-}
-function promptGame(mode){
- lastMode=mode;
- const list=mode==="truth"?truth:dare;
- lastPrompt=pick(list,lastPrompt);
- $("truthResult").textContent=(mode==="truth"?"💌 TRUTH: ":"⚡ DARE: ")+lastPrompt;
+
+function drawWheel(id, list) {
+  const canvas = $(id);
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  const size = canvas.width;
+  const center = size / 2;
+  const radius = center - 10;
+  const step = (2 * Math.PI) / list.length;
+
+  ctx.clearRect(0, 0, size, size);
+
+  list.forEach((task, i) => {
+    const start = -Math.PI / 2 + i * step;
+
+    ctx.beginPath();
+    ctx.moveTo(center, center);
+    ctx.arc(center, center, radius, start, start + step);
+    ctx.closePath();
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.fill();
+    ctx.strokeStyle = "#f9d5e3";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(center, center);
+    ctx.rotate(start + step / 2);
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 13px Arial";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    ctx.fillText((i + 1) + ". " + task.slice(0, 19), radius - 15, 0);
+    ctx.restore();
+  });
 }
 
-const diceTasks={
- 1:"Give a heartfelt compliment.",
- 2:"Choose a song for a 20-second dance.",
- 3:"Share a favourite memory.",
- 4:"Invent a secret handshake.",
- 5:"Describe your dream date in 15 seconds.",
- 6:"Let your partner pick a sweet question."
-};
-const faces=["⚀","⚁","⚂","⚃","⚄","⚅"];
-function rollDice(){
- const btn=$("rollBtn");if(btn.disabled)return;
- btn.disabled=true;
- let count=0;
- const timer=setInterval(()=>{
-  const n=1+Math.floor(Math.random()*6);
-  $("die").textContent=faces[n-1];
-  if(++count===12){
-   clearInterval(timer);
-   const result=1+Math.floor(Math.random()*6);
-   $("die").textContent=faces[result-1];
-   $("diceResult").textContent="You rolled "+result+" — "+diceTasks[result];
-   btn.disabled=false;
+let rotations = { love: 0, flirty: 0 };
+let busy = { love: false, flirty: false };
+
+function spin(mode) {
+  if (!tasks[mode] || busy[mode]) return;
+
+  const canvas = $(mode === "love" ? "wheel1" : "wheel2");
+  const result = $(mode + "Result");
+  if (!canvas || !result) return;
+
+  busy[mode] = true;
+
+  const list = tasks[mode];
+  const index = Math.floor(Math.random() * list.length);
+  const step = 360 / list.length;
+  const current = ((rotations[mode] % 360) + 360) % 360;
+  const target = ((360 - (index + 0.5) * step) % 360 + 360) % 360;
+  const extra = (target - current + 360) % 360;
+
+  rotations[mode] += 360 * 5 + extra;
+
+  canvas.style.transition = "transform 4s cubic-bezier(.12,.7,.12,1)";
+  canvas.style.transform = `rotate(${rotations[mode]}deg)`;
+  result.textContent = "The wheel is spinning…";
+
+  window.setTimeout(() => {
+    result.textContent = list[index];
+    busy[mode] = false;
+  }, 4100);
+}
+
+function skip(mode) {
+  const result = $(mode + "Result");
+  if (result) result.textContent = "Skipped! Try again whenever you're ready.";
+}
+
+const truth = [
+  "What small gesture makes you feel appreciated?",
+  "What is your favourite memory?",
+  "What would your dream day look like?",
+  "What new activity would you like to try?",
+  "What quality do you admire most in your partner?",
+  "What song reminds you of a happy memory?",
+  "What helps you feel understood?",
+  "What would you love to learn together?"
+];
+
+const dare = [
+  "Give a genuine compliment.",
+  "Do a 15-second silly dance.",
+  "Invent a cute nickname.",
+  "Act out a movie scene.",
+  "Choose a song for a mini dance.",
+  "Name three things you appreciate.",
+  "Make up a two-line poem.",
+  "Make a funny pose together."
+];
+
+let lastMode = "truth";
+let lastPrompt = "";
+
+function pick(list, previous = "") {
+  const options = list.filter((item) => item !== previous);
+  const choices = options.length ? options : list;
+  return choices[Math.floor(Math.random() * choices.length)];
+}
+
+function promptGame(mode) {
+  if (mode !== "truth" && mode !== "dare") mode = "truth";
+
+  lastMode = mode;
+  lastPrompt = pick(mode === "truth" ? truth : dare, lastPrompt);
+
+  const result = $("truthResult");
+  if (result) {
+    result.textContent =
+      (mode === "truth" ? "💌 TRUTH: " : "⚡ DARE: ") + lastPrompt;
   }
- },90);
 }
 
-const cardSets={
- pose:[
-  "Create a heart shape with your hands.",
-  "Take a funny superhero pose together.",
-  "Re-create a movie-poster pose.",
-  "Strike your best red-carpet pose.",
-  "Make matching silly faces."
- ],
- question:[
-  "What makes you feel most appreciated?",
-  "What is a memory that always makes you smile?",
-  "What would your ideal day together include?",
-  "What is one thing you admire about yourself?",
-  "What is a goal you would like support with?"
- ],
- flirty:[
-  "Give a playful compliment.",
-  "Choose a romantic song for your partner.",
-  "Invent a charming pickup line.",
-  "Hold eye contact for 10 seconds, if comfortable.",
-  "Describe your perfect date-night outfit."
- ]
+const diceTasks = {
+  1: "Give a heartfelt compliment.",
+  2: "Choose a song for a short dance.",
+  3: "Share a favourite memory.",
+  4: "Invent a secret handshake.",
+  5: "Describe your dream day.",
+  6: "Ask your partner a sweet question."
 };
-function draw(mode){
- lastCardMode=mode;
- lastCard=pick(cardSets[mode],lastCard);
- $("cardResult").textContent=lastCard;
+
+const faces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+
+function rollDice() {
+  const button = $("rollBtn");
+  if (!button || button.disabled) return;
+
+  button.disabled = true;
+
+  let count = 0;
+  const timer = window.setInterval(() => {
+    const number = 1 + Math.floor(Math.random() * 6);
+    $("die").textContent = faces[number - 1];
+
+    count++;
+
+    if (count >= 12) {
+      window.clearInterval(timer);
+
+      const finalNumber = 1 + Math.floor(Math.random() * 6);
+      $("die").textContent = faces[finalNumber - 1];
+      $("diceResult").textContent =
+        "You rolled " + finalNumber + " — " + diceTasks[finalNumber];
+
+      button.disabled = false;
+    }
+  }, 90);
 }
 
-const sweetGames=[
- ["Compliment Challenge","Take turns giving each other a sincere compliment."],
- ["Memory Lane","Each person shares a favourite memory."],
- ["Dream Date","Design an imaginary dream date together."],
- ["Love Languages","Ask what gestures help each of you feel appreciated."],
- ["Song Match","Choose a song that describes your friendship or relationship."],
- ["Two Truths","Share two true things about yourself your partner may not know."]
+const cardSets = {
+  pose: [
+    "Create a heart shape with your hands.",
+    "Try a funny superhero pose.",
+    "Re-create a movie-poster pose.",
+    "Strike a red-carpet pose.",
+    "Make matching silly faces."
+  ],
+  question: [
+    "What makes you feel most appreciated?",
+    "What memory always makes you smile?",
+    "What would your ideal day include?",
+    "What is one thing you admire about yourself?",
+    "What goal would you like support with?"
+  ],
+  flirty: [
+    "Give a playful compliment.",
+    "Choose a favourite song.",
+    "Invent a charming pickup line.",
+    "Hold eye contact for 10 seconds, if comfortable.",
+    "Describe your perfect celebration outfit."
+  ]
+};
+
+let lastCardMode = "pose";
+let lastCard = "";
+
+function draw(mode) {
+  if (!cardSets[mode]) mode = "pose";
+
+  lastCardMode = mode;
+  lastCard = pick(cardSets[mode], lastCard);
+
+  const result = $("cardResult");
+  if (result) result.textContent = lastCard;
+}
+
+const sweetGames = [
+  ["Compliment Challenge", "Take turns giving sincere compliments."],
+  ["Memory Lane", "Each person shares a favourite memory."],
+  ["Dream Day", "Plan an imaginary perfect day together."],
+  ["Appreciation", "Share what makes you feel appreciated."],
+  ["Song Match", "Choose a song that reminds you of a happy time."],
+  ["Two Truths", "Share two true things the other person may not know."]
 ];
-function sweetGame(){
- const item=sweetGames[Math.floor(Math.random()*sweetGames.length)];
- $("sweetTitle").textContent=item[0];
- $("sweetResult").textContent=item[1];
+
+function sweetGame() {
+  const item = pick(sweetGames.map((game) => game[0]));
+  const game = sweetGames.find((entry) => entry[0] === item);
+
+  if (game) {
+    $("sweetTitle").textContent = game[0];
+    $("sweetResult").textContent = game[1];
+  }
 }
-</script>
-</body>
-</html>
 
+function initialisePlaySuite() {
+  // Reconnect the navigation buttons.
+  document.querySelectorAll("#nav button[data-page]").forEach((button) => {
+    button.addEventListener("click", () => page(button.dataset.page));
+  });
 
+  // Draw both wheels after the HTML has loaded.
+  drawWheel("wheel1", tasks.love);
+  drawWheel("wheel2", tasks.flirty);
 
+  // Show the home screen if no screen is currently active.
+  if (!document.querySelector(".screen.active")) {
+    page("home");
+  }
 
+  console.log("Play Suite loaded successfully.");
+}
 
-
+// Works whether the HTML is still loading or has already loaded.
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initialisePlaySuite);
+} else {
+  initialisePlaySuite();
+}
