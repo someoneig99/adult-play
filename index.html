@@ -3,703 +3,451 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Play Suite offers fun, friendly browser games including Spin Wheel, Truth or Dare, Fun Cards, Action Dice and Scoreboard.">
-<meta name="theme-color" content="#6541a5">
-<title>Play Suite | Fun Games</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Play Suite | Love & Mystery</title>
 <style>
-:root {
-    --primary: #6541a5;
-    --primary-dark: #4b2d82;
-    --background: #f7f4ff;
-    --surface: #ffffff;
-    --text: #29243a;
-    --muted: #625a70;
-    --border: #e8e0f4;
+:root{
+  --bg:#10080d;--panel:#211018;--pink:#ff6fae;
+  --rose:#a82e59;--gold:#e7c18b;--text:#fff2f6;
+  --muted:#cbb4bd;--line:#ffffff20;
 }
-
-* {
-    box-sizing: border-box;
+*{box-sizing:border-box}
+body{
+  margin:0;background:
+  radial-gradient(ellipse at top,#512034 0%,#1b0c14 45%,#10080d 100%);
+  color:var(--text);font-family:Arial,sans-serif;
+  min-height:100vh;
 }
-
-html {
-    scroll-behavior: smooth;
-    scroll-padding-top: 80px;
+button,input{font:inherit}
+button{cursor:pointer}
+header{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:12px;padding:15px 4%;border-bottom:1px solid var(--line);
+  background:#10080de8;position:sticky;top:0;z-index:5;
 }
-
-body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background: var(--background);
-    color: var(--text);
-    line-height: 1.6;
+.logo{font-size:22px;font-weight:900;white-space:nowrap}
+.logo span{color:var(--pink)}
+nav{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+nav button,.secondary{
+  background:#ffffff09;color:var(--text);border:1px solid var(--line);
+  padding:9px 12px;border-radius:12px;
 }
-
-a {
-    color: var(--primary);
+nav button.active{background:var(--rose);border-color:var(--pink)}
+main{
+  min-height:calc(100dvh - 120px);
+  display:flex;align-items:center;justify-content:center;padding:18px;
 }
-
-button, input {
-    font: inherit;
+.screen{display:none;width:min(850px,100%);text-align:center}
+.screen.active{display:block;animation:appear .3s ease}
+@keyframes appear{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.eyebrow{color:var(--gold);letter-spacing:3px;font-size:11px}
+h1{font-size:clamp(28px,5vw,48px);margin:10px 0}
+h2{font-size:23px}
+p{color:var(--muted);line-height:1.5}
+.pink{color:var(--pink)}
+.btn{
+  background:linear-gradient(120deg,#9e2450,#f05c9a);
+  color:white;border:0;border-radius:13px;padding:13px 19px;
+  font-weight:bold;box-shadow:0 5px 25px #e94b8525;
 }
-
-button {
-    min-height: 44px;
-    border: 0;
-    border-radius: 10px;
-    padding: 11px 17px;
-    background: var(--primary);
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    touch-action: manipulation;
+.secondary:hover,nav button:hover{border-color:var(--pink)}
+.btn:disabled{opacity:.5}
+.buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:15px 0}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:24px}
+.tile{
+  color:white;text-align:left;border:1px solid #e89bb333;
+  background:linear-gradient(145deg,#3b1c2b,#1b1018);
+  border-radius:17px;padding:18px;min-height:120px;
 }
-
-button:hover {
-    background: var(--primary-dark);
+.tile:hover{border-color:var(--pink);transform:translateY(-2px)}
+.tile .emoji{font-size:27px}
+.tile h3{margin:10px 0 5px}
+.tile p{font-size:12px;margin:0}
+.panel{
+  background:#1c1019dc;border:1px solid #e8a4bf35;
+  border-radius:22px;padding:20px;margin:18px auto;
+  max-width:590px;box-shadow:0 15px 50px #0003;
 }
-
-button:focus-visible,
-a:focus-visible,
-input:focus-visible {
-    outline: 3px solid #f2a900;
-    outline-offset: 3px;
+.result{
+  min-height:95px;display:flex;justify-content:center;align-items:center;
+  font-size:clamp(17px,3vw,24px);line-height:1.5;
+  padding:20px;border-radius:15px;
+  background:linear-gradient(145deg,#3a1b2b,#201018);
+  border:1px solid #d85c8a45;margin:15px 0;
 }
-
-input {
-    width: 100%;
-    max-width: 360px;
-    min-height: 44px;
-    padding: 11px 12px;
-    border: 1px solid #cfc4df;
-    border-radius: 9px;
-    background: white;
-    color: var(--text);
+.wheel-layout{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:20px}
+.wheel-wrap{width:min(330px,75vw);margin:12px auto;position:relative}
+#wheelCanvas{width:100%;height:auto;display:block}
+.pointer{
+ position:absolute;top:-8px;left:50%;transform:translateX(-50%);
+ color:var(--gold);font-size:30px;z-index:2
 }
-
-header {
-    padding: 32px 16px;
-    text-align: center;
-    color: white;
-    background: linear-gradient(135deg, #6541a5, #9270d9);
+.wheel-center{
+ position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+ width:62px;height:62px;border-radius:50%;background:#fff4f6;
+ color:#812448;display:grid;place-items:center;font-weight:900;
+ border:4px solid #edb5c7;pointer-events:none;
 }
-
-header h1 {
-    margin: 0;
-    font-size: clamp(30px, 6vw, 44px);
+.dice{font-size:100px;filter:drop-shadow(0 0 20px #f06a9a66)}
+input{
+  background:#170c13;color:white;border:1px solid var(--line);
+  border-radius:10px;padding:12px;width:min(240px,100%)
 }
-
-header p {
-    margin: 8px 0 0;
-}
-
-nav {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 10px;
-    background: white;
-    border-bottom: 1px solid var(--border);
-}
-
-nav a {
-    padding: 8px 10px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-nav a:hover {
-    background: var(--background);
-}
-
-main {
-    width: min(100% - 28px, 960px);
-    margin: 24px auto;
-}
-
-.card {
-    padding: clamp(17px, 4vw, 28px);
-    margin-bottom: 22px;
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    background: var(--surface);
-    box-shadow: 0 5px 20px #38215b0c;
-    text-align: center;
-}
-
-.card h2 {
-    margin-top: 0;
-    color: var(--primary);
-}
-
-.hero {
-    padding: 28px 18px;
-    background: white;
-    border-radius: 18px;
-    text-align: center;
-    margin-bottom: 22px;
-}
-
-.game-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-}
-
-.game-link {
-    display: block;
-    padding: 17px 10px;
-    border: 1px solid var(--border);
-    border-radius: 13px;
-    text-decoration: none;
-    font-weight: bold;
-    background: #fcfaff;
-}
-
-.game-link:hover {
-    background: #f0e9ff;
-}
-
-.result {
-    min-height: 48px;
-    margin: 17px 0 4px;
-    font-size: 18px;
-    font-weight: bold;
-    overflow-wrap: anywhere;
-}
-
-#wheel {
-    width: min(62vw, 220px);
-    height: min(62vw, 220px);
-    margin: 20px auto;
-    border: 6px solid white;
-    outline: 2px solid var(--primary);
-    border-radius: 50%;
-    background: conic-gradient(
-        #ff8fab 0deg 45deg,
-        #ffd166 45deg 90deg,
-        #9bf6ff 90deg 135deg,
-        #bdb2ff 135deg 180deg,
-        #caffbf 180deg 225deg,
-        #ffc6ff 225deg 270deg,
-        #a0c4ff 270deg 315deg,
-        #fdffb6 315deg 360deg
-    );
-    transition: transform 2s ease-out;
-}
-
-.wheel-labels {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 7px;
-    max-width: 450px;
-    margin: 15px auto;
-    text-align: left;
-    font-size: 14px;
-}
-
-.wheel-labels span {
-    padding: 6px;
-    border-radius: 6px;
-    background: #f7f4ff;
-}
-
-.action-row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 10px;
-}
-
-.info {
-    max-width: 760px;
-    margin: auto;
-    text-align: left;
-}
-
-.info h3 {
-    margin-top: 24px;
-    color: var(--primary);
-}
-
-.info p, .info li {
-    overflow-wrap: anywhere;
-}
-
-.muted {
-    color: var(--muted);
-    font-size: 14px;
-}
-
-footer {
-    padding: 25px 15px;
-    background: #eee7fa;
-    text-align: center;
-}
-
-footer a {
-    display: inline-block;
-    margin: 5px 8px;
-}
-
-@media (max-width: 600px) {
-    nav {
-        gap: 2px;
-        padding: 7px 4px;
-    }
-
-    nav a {
-        padding: 8px 7px;
-        font-size: 12px;
-    }
-
-    main {
-        width: calc(100% - 20px);
-        margin-top: 14px;
-    }
-
-    .game-grid {
-        grid-template-columns: 1fr;
-    }
-
-    button {
-        max-width: 100%;
-    }
-
-    .action-row button {
-        flex: 1 1 125px;
-    }
-
-    .wheel-labels {
-        font-size: 12px;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    html {
-        scroll-behavior: auto;
-    }
-
-    #wheel {
-        transition: none;
-    }
+.small{font-size:12px}
+footer{text-align:center;padding:12px;color:#a78c98;font-size:11px}
+@media(max-width:650px){
+ header{align-items:flex-start;flex-direction:column;padding:12px}
+ nav{width:100%;justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto}
+ nav button{white-space:nowrap;font-size:12px;padding:8px}
+ main{padding:12px;align-items:flex-start}
+ .screen{padding:5px 0}
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .tile{padding:13px;min-height:110px}
+ .tile h3{font-size:15px}
+ .wheel-layout{grid-template-columns:1fr;gap:0}
+ .wheel-wrap{width:min(270px,68vw)}
+ .panel{padding:15px}
 }
 </style>
 </head>
-
 <body>
-
-<header id="home">
-    <h1>🎉 Play Suite</h1>
-    <p>Play, Laugh, Repeat!</p>
-    <p>Simple games for fun, friendly challenges and competition.</p>
+<header>
+  <div class="logo">PLAY <span>SUITE ♥</span></div>
+  <nav id="nav">
+    <button class="active" data-page="home">Home</button>
+    <button data-page="loving">❤️ Loving</button>
+    <button data-page="flirty">🔥 Flirty</button>
+    <button data-page="truth">Truth/Dare</button>
+    <button data-page="dice">Dice</button>
+    <button data-page="cards">Cards</button>
+    <button data-page="sweet">Sweet Games</button>
+  </nav>
 </header>
 
-<nav aria-label="Main navigation">
-    <a href="#games">Games</a>
-    <a href="#wheel-game">Wheel</a>
-    <a href="#truth-dare">Truth or Dare</a>
-    <a href="#scoreboard">Scores</a>
-    <a href="#privacy">Privacy</a>
-    <a href="#rules">Rules</a>
-</nav>
-
 <main>
-
-<section class="hero" id="games">
-    <h2>Welcome to Play Suite!</h2>
-    <p>Choose a game and enjoy a quick break with friends.</p>
-
-    <div class="game-grid">
-        <a class="game-link" href="#wheel-game">🎡 Spin Wheel</a>
-        <a class="game-link" href="#truth-dare">🎯 Truth or Dare</a>
-        <a class="game-link" href="#fun-cards">🃏 Fun Cards</a>
-        <a class="game-link" href="#action-dice">🎲 Action Dice</a>
-        <a class="game-link" href="#scoreboard">🏆 Scoreboard</a>
-    </div>
+<section class="screen active" id="home">
+  <p class="eyebrow">A LITTLE ROMANCE · A LITTLE MYSTERY</p>
+  <h1>LOVE IN THE <span class="pink">SPOTLIGHT</span></h1>
+  <p>Two players. One wheel. A night full of surprises.</p>
+  <div class="grid">
+    <button class="tile" onclick="page('loving')">
+      <div class="emoji">🌹</div><h3>Loving Wheel</h3>
+      <p>Affection, care and sweet dares.</p>
+    </button>
+    <button class="tile" onclick="page('flirty')">
+      <div class="emoji">🔥</div><h3>Flirty Wheel</h3>
+      <p>Playful and mysterious challenges.</p>
+    </button>
+    <button class="tile" onclick="page('truth')">
+      <div class="emoji">💌</div><h3>Truth or Dare</h3>
+      <p>Choose a prompt for your turn.</p>
+    </button>
+    <button class="tile" onclick="page('dice')">
+      <div class="emoji">🎲</div><h3>Task Dice</h3>
+      <p>Roll to reveal a surprise.</p>
+    </button>
+    <button class="tile" onclick="page('cards')">
+      <div class="emoji">🃏</div><h3>Mystery Cards</h3>
+      <p>Questions and pose challenges.</p>
+    </button>
+    <button class="tile" onclick="page('sweet')">
+      <div class="emoji">💕</div><h3>Sweet Games</h3>
+      <p>Discover how well you know each other.</p>
+    </button>
+  </div>
 </section>
 
-<section class="card" id="wheel-game">
-    <h2>🎡 Spin the Wheel</h2>
-    <p>Spin for a random friendly challenge.</p>
-
-    <div id="wheel" role="img" aria-label="Colourful spinning wheel"></div>
-
-    <button id="spinButton" onclick="spinWheel()">Spin Now!</button>
-    <div class="result" id="wheelResult" aria-live="polite">
-        Ready to spin?
+<section class="screen" id="loving">
+  <p class="eyebrow">MODE 01 · ROMANTIC & AFFECTIONATE</p>
+  <h1>THE <span class="pink">LOVING WHEEL</span> 🌹</h1>
+  <p>Let the wheel choose a sweet challenge.</p>
+  <div class="wheel-layout">
+    <div class="wheel-wrap">
+      <div class="pointer">▼</div>
+      <canvas id="wheel1" width="500" height="500"></canvas>
+      <div class="wheel-center">LOVE</div>
     </div>
-
-    <div class="wheel-labels" aria-label="Possible wheel results">
-        <span>1. Tell a joke</span>
-        <span>2. Name three foods</span>
-        <span>3. Animal impression</span>
-        <span>4. Give a compliment</span>
-        <span>5. Dream holiday</span>
-        <span>6. Name five movies</span>
-        <span>7. Share a fun fact</span>
-        <span>8. Do a silly pose</span>
+    <div class="panel">
+      <div id="loveResult" class="result">Your romantic surprise awaits…</div>
+      <div class="buttons">
+        <button class="btn" onclick="spin('love')">SPIN THE WHEEL ♥</button>
+        <button class="secondary" onclick="skip('love')">Skip</button>
+      </div>
     </div>
+  </div>
 </section>
 
-<section class="card" id="truth-dare">
-    <h2>🎯 Truth or Dare</h2>
-    <p>Enter a nickname if you want, then choose a challenge.</p>
-
-    <input id="playerName" maxlength="30"
-           autocomplete="off" placeholder="Optional player nickname"
-           aria-label="Player nickname">
-
-    <div class="action-row">
-        <button onclick="playTruthDare('truth')">Truth</button>
-        <button onclick="playTruthDare('dare')">Dare</button>
+<section class="screen" id="flirty">
+  <p class="eyebrow">MODE 02 · PLAYFUL & MYSTERIOUS</p>
+  <h1>THE <span class="pink">FLIRTY WHEEL</span> 🔥</h1>
+  <p>Take turns and let fate choose a playful challenge.</p>
+  <div class="wheel-layout">
+    <div class="wheel-wrap">
+      <div class="pointer">▼</div>
+      <canvas id="wheel2" width="500" height="500"></canvas>
+      <div class="wheel-center">SPICE</div>
     </div>
-
-    <div class="result" id="truthDareResult" aria-live="polite">
-        Choose Truth or Dare!
+    <div class="panel">
+      <div id="flirtyResult" class="result">Ready for a little mystery?</div>
+      <div class="buttons">
+        <button class="btn" onclick="spin('flirty')">SPIN THE WHEEL 🔥</button>
+        <button class="secondary" onclick="skip('flirty')">Skip</button>
+      </div>
     </div>
-    <p class="muted">You can skip any prompt that makes you uncomfortable.</p>
+  </div>
 </section>
 
-<section class="card" id="fun-cards">
-    <h2>🃏 Fun Cards</h2>
-    <p>Draw a card to reveal a surprise challenge.</p>
-    <button onclick="drawCard()">Draw a Card</button>
-    <div class="result" id="cardResult" aria-live="polite">
-        Your card is waiting!
-    </div>
+<section class="screen" id="truth">
+  <p class="eyebrow">HONEST ANSWERS · FUN CHALLENGES</p>
+  <h1>TRUTH <span class="pink">OR DARE?</span></h1>
+  <div class="buttons">
+    <button class="btn" onclick="promptGame('truth')">💌 Truth</button>
+    <button class="btn" onclick="promptGame('dare')">⚡ Dare</button>
+  </div>
+  <div id="truthResult" class="result">Choose your challenge.</div>
+  <div class="buttons">
+    <button class="secondary" onclick="promptGame(lastMode)">Another prompt ↻</button>
+    <button class="secondary" onclick="page('home')">Home</button>
+  </div>
 </section>
 
-<section class="card" id="action-dice">
-    <h2>🎲 Action Dice</h2>
-    <p>Roll the dice and try the matching challenge.</p>
-    <button onclick="rollDice()">Roll Dice</button>
-    <div class="result" id="diceResult" aria-live="polite">
-        Roll to begin!
+<section class="screen" id="dice">
+  <p class="eyebrow">ONE ROLL · ONE SURPRISE</p>
+  <h1>THE <span class="pink">TASK DICE</span></h1>
+  <div class="panel">
+    <div class="dice" id="die">🎲</div>
+    <div id="diceResult" class="result">What will you roll?</div>
+    <div class="buttons">
+      <button class="btn" id="rollBtn" onclick="rollDice()">ROLL DICE</button>
+      <button class="secondary" onclick="page('home')">Home</button>
     </div>
+  </div>
 </section>
 
-<section class="card" id="scoreboard">
-    <h2>🏆 Scoreboard</h2>
-    <p>Scores are saved only in this browser on this device.</p>
-
-    <input id="scorePlayer" maxlength="30"
-           autocomplete="off" placeholder="Player nickname"
-           aria-label="Scoreboard player nickname">
-
-    <div class="action-row">
-        <button onclick="changeScore(1)">+ Add Point</button>
-        <button onclick="changeScore(-1)">− Remove Point</button>
-    </div>
-
-    <div class="result" id="scoreResult" aria-live="polite">
-        No points added yet.
-    </div>
-
-    <button onclick="resetScores()">Reset Scores</button>
+<section class="screen" id="cards">
+  <p class="eyebrow">PICK A CARD · REVEAL A SECRET</p>
+  <h1>MYSTERY <span class="pink">CARDS</span></h1>
+  <div class="buttons">
+    <button class="secondary" onclick="draw('pose')">📸 Pose Cards</button>
+    <button class="secondary" onclick="draw('question')">💭 Question Cards</button>
+    <button class="secondary" onclick="draw('flirty')">✨ Flirty Cards</button>
+  </div>
+  <div id="cardResult" class="result">A surprise is waiting inside.</div>
+  <div class="buttons">
+    <button class="btn" onclick="draw(lastCardMode)">DRAW A CARD</button>
+    <button class="secondary" onclick="page('home')">Home</button>
+  </div>
+  <p class="small">Ask before taking or sharing a photo. Anyone can pass.</p>
 </section>
 
-<!-- PRIVACY POLICY -->
-<section class="card" id="privacy">
-    <div class="info">
-        <h2>🔒 Privacy Policy</h2>
-        <p><strong>Last updated:</strong> October 25, 2026</p>
-
-        <p>Play Suite provides simple browser-based games. This page explains how the current version handles information.</p>
-
-        <h3>1. Information you enter</h3>
-        <p>You may enter a nickname for the games or scoreboard. The current version does not ask for your email address, password, phone number or payment details.</p>
-
-        <h3>2. Local storage</h3>
-        <p>Scoreboard entries are stored in your browser's local storage so they can remain after a refresh. They are not automatically sent to the website owner. Other game prompts are generated in your browser.</p>
-
-        <h3>3. Removing saved scores</h3>
-        <p>Use the Reset Scores button to clear the scoreboard. Clearing this website's browser storage will also remove saved scores.</p>
-
-        <h3>4. Cookies and advertising</h3>
-        <p>This version does not intentionally set advertising cookies or include an advertising network. If advertising, analytics, embedded services or other third-party tools are added later, this policy must be updated to explain their data practices.</p>
-
-        <h3>5. Third-party services</h3>
-        <p>The site may be hosted by a platform such as GitHub Pages. Hosting providers may process technical information, such as server requests, under their own policies. Review the policies of the services used to host or access this website.</p>
-
-        <h3>6. Children's privacy</h3>
-        <p>Players should use nicknames rather than real names or other identifying details. Do not enter private information into game fields.</p>
-
-        <h3>7. Changes to this policy</h3>
-        <p>This policy should be updated whenever the site's features, data collection or third-party services change.</p>
-
-        <h3>8. Contact</h3>
-        <p>For privacy questions, use the contact method provided by the website owner. A contact address has not been published in this demo.</p>
-
-        <p class="muted">This is a starter policy, not legal advice. Check that it accurately describes your published website and applicable legal requirements before launch.</p>
+<section class="screen" id="sweet">
+  <p class="eyebrow">GET CLOSER THROUGH KINDNESS</p>
+  <h1>SWEET <span class="pink">GAMES</span> 💕</h1>
+  <div class="panel">
+    <h2 id="sweetTitle">How well do you know each other?</h2>
+    <div id="sweetResult" class="result">Press below for a sweet game.</div>
+    <div class="buttons">
+      <button class="btn" onclick="sweetGame()">SURPRISE US</button>
+      <button class="secondary" onclick="page('home')">Home</button>
     </div>
+  </div>
 </section>
-
-<!-- TERMS AND RULES -->
-<section class="card" id="rules">
-    <div class="info">
-        <h2>📋 Terms & Game Rules</h2>
-
-        <h3>1. Friendly use</h3>
-        <p>Use Play Suite for entertainment and friendly games. Treat all players with respect.</p>
-
-        <h3>2. Participation is voluntary</h3>
-        <p>Players may skip any Truth or Dare prompt or challenge without pressure or punishment.</p>
-
-        <h3>3. Safety first</h3>
-        <ul>
-            <li>No dangerous, illegal or harmful challenges.</li>
-            <li>No pressure to share secrets, private messages or personal information.</li>
-            <li>No unwanted touching, humiliation or harassment.</li>
-            <li>Keep challenges suitable for the players and their setting.</li>
-        </ul>
-
-        <h3>4. Scores</h3>
-        <p>Scores are for fun only. They are stored locally in the current browser and can be reset at any time. They do not sync between devices.</p>
-
-        <h3>5. Availability</h3>
-        <p>The games are provided for entertainment. Features may change, and uninterrupted availability is not guaranteed.</p>
-
-        <h3>6. Responsible use</h3>
-        <p>Do not use the site to bully, threaten, exploit or harm anyone. Stop playing if someone feels uncomfortable.</p>
-
-        <h3>7. Updates</h3>
-        <p>These rules may be updated when the website changes. Check this section for the current version.</p>
-    </div>
-</section>
-
-<section class="card" id="about">
-    <div class="info">
-        <h2>ℹ️ About Play Suite</h2>
-        <p>Play Suite is a simple browser game collection built around quick, friendly challenges. No account is needed to play this version.</p>
-        <p>For questions or feedback, add a real contact method here before publishing a public website.</p>
-    </div>
-</section>
-
 </main>
-
-<footer>
-    <p>© 2026 Play Suite. Enjoy playing responsibly.</p>
-    <a href="#privacy">Privacy Policy</a>
-    <a href="#rules">Terms & Rules</a>
-    <a href="#about">About & Contact</a>
-    <a href="#home">Back to top ↑</a>
-</footer>
+<footer>Play Suite ♥ · Respect boundaries · Every player can skip any challenge.</footer>
 
 <script>
-const wheelChallenges = [
-    "Tell a funny joke!",
-    "Name three favourite foods!",
-    "Do your best animal impression!",
-    "Say something kind about another player!",
-    "Describe your dream holiday!",
-    "Name five movies!",
-    "Share a fun fact!",
-    "Do a silly pose!"
+const $ = id => document.getElementById(id);
+
+function page(id){
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  $(id).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b=>
+    b.classList.toggle('active',b.dataset.page===id));
+}
+document.querySelectorAll('nav button').forEach(b=>
+  b.addEventListener('click',()=>page(b.dataset.page)));
+
+const tasks={
+ love:[
+  "Give your partner a gentle hand massage.",
+  "Share three things you appreciate about your partner.",
+  "Cuddle, if both of you feel comfortable.",
+  "Give a gentle shoulder massage, with permission.",
+  "Tell your partner a favourite memory together.",
+  "Hold hands and maintain eye contact for 20 seconds.",
+  "Give your partner a heartfelt compliment.",
+  "Choose a romantic song and dance together.",
+  "Describe your idea of a perfect date.",
+  "Ask your partner what makes them feel cared for."
+ ],
+ flirty:[
+  "Whisper a sweet compliment.",
+  "Give your best playful wink.",
+  "Let your partner choose a romantic song.",
+  "Do a dramatic romantic movie scene.",
+  "Hold eye contact for 10 seconds.",
+  "Invent a secret couple handshake.",
+  "Give your partner a charming pickup line.",
+  "Choose a mystery date-night activity.",
+  "Do a silly slow-motion runway walk.",
+  "Ask your partner to choose your next kind gesture."
+ ]
+};
+
+const colors=["#7f2446","#c0446a","#64203d","#e26b92",
+              "#91345c","#ad4a70","#592039","#d75b83",
+              "#77304d","#b13a66"];
+
+function drawWheel(id,list){
+ const canvas=$(id),ctx=canvas.getContext('2d');
+ const n=list.length,step=2*Math.PI/n;
+ ctx.clearRect(0,0,500,500);
+ list.forEach((task,i)=>{
+  const start=-Math.PI/2+i*step;
+  ctx.beginPath();ctx.moveTo(250,250);
+  ctx.arc(250,250,240,start,start+step);
+  ctx.closePath();ctx.fillStyle=colors[i%colors.length];ctx.fill();
+  ctx.strokeStyle="#f9d5e3";ctx.lineWidth=2;ctx.stroke();
+  ctx.save();ctx.translate(250,250);ctx.rotate(start+step/2);
+  ctx.fillStyle="#fff";ctx.font="bold 13px Arial";
+  ctx.textAlign="right";ctx.textBaseline="middle";
+  ctx.fillText((i+1)+". "+task.slice(0,19),222,0);
+  ctx.restore();
+ });
+}
+drawWheel("wheel1",tasks.love);
+drawWheel("wheel2",tasks.flirty);
+
+let rotations={love:0,flirty:0},busy={love:false,flirty:false};
+function spin(mode){
+ if(busy[mode])return;
+ busy[mode]=true;
+ const list=tasks[mode],idx=Math.floor(Math.random()*list.length);
+ const canvas=$(mode==="love"?"wheel1":"wheel2");
+ const step=360/list.length;
+ // The selected slice is placed beneath the fixed pointer at the top.
+ const current=((rotations[mode]%360)+360)%360;
+ const desired=((360-(idx+.5)*step)%360+360)%360;
+ const extra=(desired-current+360)%360;
+ rotations[mode]+=360*5+extra;
+ canvas.style.transition="transform 4s cubic-bezier(.12,.7,.12,1)";
+ canvas.style.transform=`rotate(${rotations[mode]}deg)`;
+ $(mode+"Result").textContent="The wheel is spinning…";
+ setTimeout(()=>{
+  $(mode+"Result").textContent=list[idx];
+  busy[mode]=false;
+ },4100);
+}
+function skip(mode){
+ $(mode+"Result").textContent="Skipped! Spin again whenever you're ready.";
+}
+
+const truth=[
+ "What small gesture makes you feel appreciated?",
+ "What is your favourite memory with your partner?",
+ "What would your dream date look like?",
+ "What is something new you would enjoy trying together?",
+ "What quality do you admire most in your partner?",
+ "What song reminds you of a happy memory?",
+ "What helps you feel understood?",
+ "What is something you would love to learn together?"
 ];
-
-let wheelRotation = 0;
-let spinning = false;
-
-function spinWheel() {
-    if (spinning) return;
-
-    spinning = true;
-    document.getElementById("spinButton").disabled = true;
-
-    const wheel = document.getElementById("wheel");
-    const result = document.getElementById("wheelResult");
-    const index = Math.floor(Math.random() * wheelChallenges.length);
-
-    wheelRotation += 1440 + Math.random() * 360;
-    wheel.style.transform = `rotate(${wheelRotation}deg)`;
-    result.textContent = "Spinning...";
-
-    setTimeout(() => {
-        result.textContent = wheelChallenges[index];
-        spinning = false;
-        document.getElementById("spinButton").disabled = false;
-    }, 2050);
-}
-
-const truths = [
-    "What always makes you laugh?",
-    "What is a favourite childhood memory?",
-    "What skill would you love to learn?",
-    "What is your dream travel destination?",
-    "What is a funny thing that happened at school?",
-    "What is something you are proud of?",
-    "What is your favourite food?",
-    "Which fictional world would you visit?"
+const dare=[
+ "Give a genuine compliment.",
+ "Do a 15-second silly dance.",
+ "Invent a cute nickname for your partner.",
+ "Act out your first meeting like a movie.",
+ "Choose a song for a mini dance together.",
+ "Tell your partner three things you appreciate.",
+ "Make up a two-line love poem.",
+ "Re-create a favourite photo pose, if both agree."
 ];
+let lastMode="truth",lastPrompt="",lastCardMode="pose",lastCard="";
+function pick(list,last){
+ const options=list.filter(x=>x!==last);
+ return options[Math.floor(Math.random()*options.length)];
+}
+function promptGame(mode){
+ lastMode=mode;
+ const list=mode==="truth"?truth:dare;
+ lastPrompt=pick(list,lastPrompt);
+ $("truthResult").textContent=(mode==="truth"?"💌 TRUTH: ":"⚡ DARE: ")+lastPrompt;
+}
 
-const dares = [
-    "Speak like a robot for 20 seconds!",
-    "Make up a funny song!",
-    "Do your best superhero pose!",
-    "Tell a joke without laughing!",
-    "Act like a cartoon character!",
-    "Try a tongue twister!",
-    "Pretend to be a news reporter!",
-    "Invent a new dance move!"
+const diceTasks={
+ 1:"Give a heartfelt compliment.",
+ 2:"Choose a song for a 20-second dance.",
+ 3:"Share a favourite memory.",
+ 4:"Invent a secret handshake.",
+ 5:"Describe your dream date in 15 seconds.",
+ 6:"Let your partner pick a sweet question."
+};
+const faces=["⚀","⚁","⚂","⚃","⚄","⚅"];
+function rollDice(){
+ const btn=$("rollBtn");if(btn.disabled)return;
+ btn.disabled=true;
+ let count=0;
+ const timer=setInterval(()=>{
+  const n=1+Math.floor(Math.random()*6);
+  $("die").textContent=faces[n-1];
+  if(++count===12){
+   clearInterval(timer);
+   const result=1+Math.floor(Math.random()*6);
+   $("die").textContent=faces[result-1];
+   $("diceResult").textContent="You rolled "+result+" — "+diceTasks[result];
+   btn.disabled=false;
+  }
+ },90);
+}
+
+const cardSets={
+ pose:[
+  "Create a heart shape with your hands.",
+  "Take a funny superhero pose together.",
+  "Re-create a movie-poster pose.",
+  "Strike your best red-carpet pose.",
+  "Make matching silly faces."
+ ],
+ question:[
+  "What makes you feel most appreciated?",
+  "What is a memory that always makes you smile?",
+  "What would your ideal day together include?",
+  "What is one thing you admire about yourself?",
+  "What is a goal you would like support with?"
+ ],
+ flirty:[
+  "Give a playful compliment.",
+  "Choose a romantic song for your partner.",
+  "Invent a charming pickup line.",
+  "Hold eye contact for 10 seconds, if comfortable.",
+  "Describe your perfect date-night outfit."
+ ]
+};
+function draw(mode){
+ lastCardMode=mode;
+ lastCard=pick(cardSets[mode],lastCard);
+ $("cardResult").textContent=lastCard;
+}
+
+const sweetGames=[
+ ["Compliment Challenge","Take turns giving each other a sincere compliment."],
+ ["Memory Lane","Each person shares a favourite memory."],
+ ["Dream Date","Design an imaginary dream date together."],
+ ["Love Languages","Ask what gestures help each of you feel appreciated."],
+ ["Song Match","Choose a song that describes your friendship or relationship."],
+ ["Two Truths","Share two true things about yourself your partner may not know."]
 ];
-
-function playTruthDare(type) {
-    const name = document.getElementById("playerName").value.trim()
-        || "Player";
-    const list = type === "truth" ? truths : dares;
-    const prompt = list[Math.floor(Math.random() * list.length)];
-
-    document.getElementById("truthDareResult").textContent =
-        name + ", your " + type + ": " + prompt;
+function sweetGame(){
+ const item=sweetGames[Math.floor(Math.random()*sweetGames.length)];
+ $("sweetTitle").textContent=item[0];
+ $("sweetResult").textContent=item[1];
 }
-
-const cards = [
-    "🌟 Bonus: Earn 2 points!",
-    "😂 Tell the group a joke!",
-    "🎨 Name three colours in five seconds!",
-    "🧠 Share an interesting fact!",
-    "👏 Give someone a compliment!",
-    "🎭 Act out an emotion!",
-    "🎵 Hum a song for others to guess!",
-    "⭐ Bonus: Earn 1 point!",
-    "🗺️ Name a place you'd like to visit!",
-    "😄 Make your funniest face!"
-];
-
-function drawCard() {
-    const card = cards[Math.floor(Math.random() * cards.length)];
-    document.getElementById("cardResult").textContent = card;
-}
-
-const diceActions = [
-    "Tell a joke!",
-    "Name three animals!",
-    "Do a funny pose!",
-    "Say a tongue twister!",
-    "Name five fruits!",
-    "Share a fun fact!"
-];
-
-function rollDice() {
-    const roll = Math.floor(Math.random() * 6) + 1;
-
-    document.getElementById("diceResult").textContent =
-        "🎲 You rolled " + roll + "! " + diceActions[roll - 1];
-}
-
-const STORAGE_KEY = "playSuiteScores";
-let scores = loadScores();
-
-function loadScores() {
-    try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        const parsed = saved ? JSON.parse(saved) : {};
-
-        if (!parsed || Array.isArray(parsed) || typeof parsed !== "object") {
-            return {};
-        }
-
-        const cleaned = {};
-
-        for (const [name, score] of Object.entries(parsed)) {
-            if (typeof name === "string" &&
-                typeof score === "number" &&
-                Number.isFinite(score) &&
-                score >= 0) {
-                cleaned[name] = Math.floor(score);
-            }
-        }
-
-        return cleaned;
-    } catch {
-        return {};
-    }
-}
-
-function saveScores() {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(scores));
-        return true;
-    } catch {
-        return false;
-    }
-}
-
-function changeScore(amount) {
-    const input = document.getElementById("scorePlayer");
-    const name = input.value.trim().slice(0, 30);
-    const result = document.getElementById("scoreResult");
-
-    if (!name) {
-        result.textContent = "Enter a nickname first.";
-        input.focus();
-        return;
-    }
-
-    if (!Object.prototype.hasOwnProperty.call(scores, name)) {
-        scores[name] = 0;
-    }
-
-    scores[name] = Math.max(0, scores[name] + amount);
-
-    const saved = saveScores();
-    displayScores();
-
-    if (!saved) {
-        result.insertAdjacentText(
-            "beforeend",
-            " (Could not save on this device.)"
-        );
-    }
-}
-
-function displayScores() {
-    const result = document.getElementById("scoreResult");
-    const entries = Object.entries(scores)
-        .sort((a, b) => b[1] - a[1]);
-
-    result.replaceChildren();
-
-    if (entries.length === 0) {
-        result.textContent = "No points added yet.";
-        return;
-    }
-
-    entries.forEach(([name, score], index) => {
-        const line = document.createElement("div");
-        line.textContent =
-            (index === 0 ? "🏆 " : "") + name + ": " +
-            score + (score === 1 ? " point" : " points");
-        result.appendChild(line);
-    });
-}
-
-function resetScores() {
-    if (!confirm("Clear all saved scores on this device?")) return;
-
-    scores = {};
-
-    try {
-        localStorage.removeItem(STORAGE_KEY);
-    } catch {
-        // Scores are cleared from the current page even if storage is unavailable.
-    }
-
-    displayScores();
-}
-
-displayScores();
 </script>
-
 </body>
 </html>
+
+
+
+
+
 
