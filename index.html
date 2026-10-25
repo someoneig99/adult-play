@@ -1,1 +1,694 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Play Suite | Fun Games</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #170b2e, #351044, #641b52);
+    color: white;
+    min-height: 100vh;
+}
+
+header {
+    text-align: center;
+    padding: 30px 15px 20px;
+}
+
+header h1 {
+    font-size: clamp(30px, 6vw, 48px);
+    color: #ff8acb;
+    margin-bottom: 10px;
+}
+
+header p {
+    color: #e8d5f5;
+    line-height: 1.6;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 15px;
+}
+
+nav button, .btn {
+    border: none;
+    padding: 12px 18px;
+    border-radius: 25px;
+    background: #ed63b5;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+nav button:hover, .btn:hover {
+    background: #ff8acb;
+    color: #281033;
+    transform: translateY(-2px);
+}
+
+nav button.active {
+    background: white;
+    color: #8a2675;
+}
+
+.container {
+    width: min(1000px, 92%);
+    margin: 15px auto 40px;
+}
+
+.panel {
+    display: none;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 22px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+}
+
+.panel.active {
+    display: block;
+}
+
+h2 {
+    color: #ff9bd5;
+    margin-bottom: 12px;
+}
+
+.description {
+    color: #e5d5ef;
+    margin-bottom: 22px;
+    line-height: 1.6;
+}
+
+.wheel-wrap {
+    width: min(320px, 85vw);
+    margin: 25px auto;
+    position: relative;
+}
+
+.pointer {
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    color: white;
+    font-size: 30px;
+}
+
+#wheel {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 50%;
+    border: 6px solid white;
+    box-shadow: 0 0 25px #e95ab4;
+}
+
+.result {
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 650px;
+    min-height: 65px;
+    line-height: 1.6;
+    font-size: 18px;
+}
+
+.button-row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.secondary {
+    background: #663b88;
+}
+
+.secondary:hover {
+    background: #8b5eac;
+    color: white;
+}
+
+.choice-row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.choice {
+    background: #432255;
+    border: 2px solid #a45aaf;
+}
+
+.choice.selected {
+    background: #ff8acb;
+    color: #351044;
+    border-color: white;
+}
+
+.game-card {
+    background: linear-gradient(135deg, #8c347f, #50256f);
+    border-radius: 20px;
+    padding: 30px 20px;
+    margin: 20px auto;
+    max-width: 650px;
+    min-height: 170px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px;
+}
+
+.game-card .emoji {
+    font-size: 40px;
+}
+
+.game-card p {
+    font-size: 21px;
+    line-height: 1.5;
+}
+
+.dice {
+    font-size: 95px;
+    margin: 20px;
+}
+
+.scoreboard {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.score {
+    background: rgba(255,255,255,0.1);
+    padding: 18px;
+    border-radius: 15px;
+    min-width: 140px;
+}
+
+.score h3 {
+    color: #ff9bd5;
+    margin-bottom: 10px;
+}
+
+.score-number {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+input {
+    width: min(220px, 100%);
+    padding: 11px;
+    border: 1px solid #d8a0e8;
+    border-radius: 10px;
+    margin: 5px;
+    font-size: 15px;
+}
+
+footer {
+    text-align: center;
+    color: #d8c0e4;
+    padding: 20px;
+    font-size: 13px;
+}
+
+button:focus-visible {
+    outline: 3px solid white;
+    outline-offset: 3px;
+}
+
+@media (max-width: 500px) {
+    .panel {
+        padding: 18px 12px;
+    }
+
+    nav button {
+        padding: 10px 13px;
+        font-size: 14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>✨ Play Suite ✨</h1>
+    <p>Spin, laugh, discover and make fun memories!</p>
+    <p>🎮 Your mini game night starts here.</p>
+</header>
+
+<nav>
+    <button class="active" data-panel="wheelPanel">🎡 Spin Wheel</button>
+    <button data-panel="truthPanel">💬 Truth or Dare</button>
+    <button data-panel="cardsPanel">🃏 Fun Cards</button>
+    <button data-panel="dicePanel">🎲 Action Dice</button>
+    <button data-panel="scorePanel">🏆 Scoreboard</button>
+</nav>
+
+<main class="container">
+
+    <!-- SPIN WHEEL -->
+    <section class="panel active" id="wheelPanel">
+        <h2>🎡 Spin the Wheel</h2>
+        <p class="description">Give the wheel a spin and see what fun challenge appears!</p>
+
+        <div class="wheel-wrap">
+            <div class="pointer">▼</div>
+            <canvas id="wheel" width="500" height="500"></canvas>
+        </div>
+
+        <div class="result" id="wheelResult" aria-live="polite">
+            Ready? Press SPIN!
+        </div>
+
+        <button class="btn" id="spinButton" onclick="spinWheel()">SPIN THE WHEEL</button>
+    </section>
+
+    <!-- TRUTH OR DARE -->
+    <section class="panel" id="truthPanel">
+        <h2>💬 Truth or Dare</h2>
+        <p class="description">Choose your challenge. You can always skip any prompt.</p>
+
+        <div class="choice-row">
+            <button class="btn choice selected" id="truthChoice"
+                onclick="setMode('truth')">💭 Truth</button>
+            <button class="btn choice" id="dareChoice"
+                onclick="setMode('dare')">⚡ Dare</button>
+        </div>
+
+        <div class="game-card">
+            <div class="emoji" id="truthEmoji">💭</div>
+            <p id="truthPrompt" aria-live="polite">Choose Truth or Dare to begin!</p>
+        </div>
+
+        <div class="button-row">
+            <button class="btn" onclick="nextTruthDare()">NEXT CHALLENGE</button>
+        </div>
+    </section>
+
+    <!-- FUN CARDS -->
+    <section class="panel" id="cardsPanel">
+        <h2>🃏 Pick a Fun Card</h2>
+        <p class="description">Reveal a random question or a silly challenge.</p>
+
+        <div class="game-card">
+            <div class="emoji" id="cardEmoji">🎴</div>
+            <p id="cardPrompt" aria-live="polite">Your mystery card is waiting!</p>
+        </div>
+
+        <button class="btn" onclick="drawCard()">DRAW A CARD</button>
+    </section>
+
+    <!-- ACTION DICE -->
+    <section class="panel" id="dicePanel">
+        <h2>🎲 Action Dice</h2>
+        <p class="description">Roll the dice to get a random, lighthearted activity.</p>
+
+        <div class="dice" id="diceFace" aria-live="polite">🎲</div>
+
+        <div class="result" id="diceResult">
+            Roll to reveal your activity!
+        </div>
+
+        <button class="btn" id="rollButton" onclick="rollDice()">ROLL DICE</button>
+    </section>
+
+    <!-- SCOREBOARD -->
+    <section class="panel" id="scorePanel">
+        <h2>🏆 Scoreboard</h2>
+        <p class="description">Add points for completed challenges and celebrate your wins!</p>
+
+        <div class="scoreboard">
+            <div class="score">
+                <h3>Player 1</h3>
+                <div class="score-number" id="score1">0</div>
+                <button class="btn" onclick="addPoint(1)">+1 Point</button>
+            </div>
+
+            <div class="score">
+                <h3>Player 2</h3>
+                <div class="score-number" id="score2">0</div>
+                <button class="btn" onclick="addPoint(2)">+1 Point</button>
+            </div>
+        </div>
+
+        <div class="result" id="scoreMessage" aria-live="polite">
+            Let the friendly competition begin!
+        </div>
+
+        <button class="btn secondary" onclick="resetScores()">RESET SCORES</button>
+    </section>
+
+</main>
+
+<footer>
+    Made for fun, laughter and good memories. Skip anything you don't enjoy. 💜
+</footer>
+
+<script>
+/* ---------------- NAVIGATION ---------------- */
+
+document.querySelectorAll("nav button").forEach(button => {
+    button.addEventListener("click", () => {
+        document.querySelectorAll("nav button").forEach(b =>
+            b.classList.remove("active")
+        );
+
+        document.querySelectorAll(".panel").forEach(panel =>
+            panel.classList.remove("active")
+        );
+
+        button.classList.add("active");
+        document.getElementById(button.dataset.panel).classList.add("active");
+    });
+});
+
+/* ---------------- SPIN WHEEL ---------------- */
+
+const wheelCanvas = document.getElementById("wheel");
+const ctx = wheelCanvas.getContext("2d");
+
+const wheelItems = [
+    "Tell a joke",
+    "Give a compliment",
+    "Sing a song",
+    "Share a memory",
+    "Do a silly dance",
+    "Tell a fun fact",
+    "Make a funny face",
+    "Choose a new game"
+];
+
+const wheelColors = [
+    "#e84e9d", "#783db5", "#f59ac9", "#52308d",
+    "#ed70b8", "#9356c9", "#ce459a", "#6845a5"
+];
+
+let wheelRotation = 0;
+let isSpinning = false;
+
+function drawWheel() {
+    const size = wheelCanvas.width;
+    const center = size / 2;
+    const radius = center - 5;
+    const slice = (Math.PI * 2) / wheelItems.length;
+
+    ctx.clearRect(0, 0, size, size);
+
+    wheelItems.forEach((item, i) => {
+        const start = wheelRotation + i * slice - Math.PI / 2;
+        const end = start + slice;
+
+        ctx.beginPath();
+        ctx.moveTo(center, center);
+        ctx.arc(center, center, radius, start, end);
+        ctx.closePath();
+        ctx.fillStyle = wheelColors[i];
+        ctx.fill();
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(center, center);
+        ctx.rotate(start + slice / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "white";
+        ctx.font = "bold 17px Arial";
+        ctx.fillText(item, radius - 22, 6, radius * 0.67);
+        ctx.restore();
+    });
+
+    ctx.beginPath();
+    ctx.arc(center, center, 28, 0, Math.PI * 2);
+    ctx.fillStyle = "white";
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(center, center, 18, 0, Math.PI * 2);
+    ctx.fillStyle = "#9a347f";
+    ctx.fill();
+}
+
+drawWheel();
+
+function spinWheel() {
+    if (isSpinning) return;
+
+    isSpinning = true;
+    document.getElementById("spinButton").disabled = true;
+    document.getElementById("wheelResult").textContent = "Spinning...";
+
+    const startRotation = wheelRotation;
+    const extraRotation = Math.PI * 2 * (5 + Math.random() * 4);
+    const duration = 3000;
+    const startTime = performance.now();
+
+    function animate(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 4);
+
+        wheelRotation = startRotation + extraRotation * eased;
+        drawWheel();
+
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            wheelRotation = wheelRotation % (Math.PI * 2);
+            drawWheel();
+
+            const slice = (Math.PI * 2) / wheelItems.length;
+            const pointerAngle = (Math.PI * 1.5 - wheelRotation) % (Math.PI * 2);
+            const normalized = (pointerAngle + Math.PI * 2) % (Math.PI * 2);
+            const index = Math.floor(normalized / slice) % wheelItems.length;
+
+            document.getElementById("wheelResult").textContent =
+                "🎉 Your challenge: " + wheelItems[index] + "!";
+
+            isSpinning = false;
+            document.getElementById("spinButton").disabled = false;
+        }
+    }
+
+    requestAnimationFrame(animate);
+}
+
+/* ---------------- TRUTH OR DARE ---------------- */
+
+const truths = [
+    "What is something that always makes you laugh?",
+    "What is your most memorable school moment?",
+    "What is one skill you would love to learn?",
+    "What is your favourite childhood memory?",
+    "What is the funniest thing that happened to you?",
+    "What is your dream travel destination?",
+    "What is one thing you are proud of?",
+    "Which fictional character would you like to meet?",
+    "What song can you listen to again and again?",
+    "What is something new you want to try?",
+    "What is your favourite way to spend a weekend?",
+    "What is the best compliment someone gave you?"
+];
+
+const dares = [
+    "Dance for 15 seconds without music.",
+    "Speak like a robot for one minute.",
+    "Make your funniest face.",
+    "Sing the chorus of your favourite song.",
+    "Do your best animal impression.",
+    "Tell a joke in a dramatic voice.",
+    "Pretend you are a news reporter for 20 seconds.",
+    "Try to say a tongue twister three times.",
+    "Describe your day using only three words.",
+    "Act like your favourite movie character.",
+    "Invent a silly handshake.",
+    "Give everyone playing a genuine compliment."
+];
+
+let currentMode = "truth";
+let previousTruth = -1;
+let previousDare = -1;
+
+function setMode(mode) {
+    currentMode = mode;
+
+    document.getElementById("truthChoice").classList.toggle(
+        "selected", mode === "truth"
+    );
+    document.getElementById("dareChoice").classList.toggle(
+        "selected", mode === "dare"
+    );
+
+    document.getElementById("truthEmoji").textContent =
+        mode === "truth" ? "💭" : "⚡";
+
+    nextTruthDare();
+}
+
+function nextTruthDare() {
+    const list = currentMode === "truth" ? truths : dares;
+    let index;
+
+    if (list.length === 1) {
+        index = 0;
+    } else {
+        const previous = currentMode === "truth" ? previousTruth : previousDare;
+        do {
+            index = Math.floor(Math.random() * list.length);
+        } while (index === previous);
+    }
+
+    if (currentMode === "truth") {
+        previousTruth = index;
+    } else {
+        previousDare = index;
+    }
+
+    document.getElementById("truthPrompt").textContent = list[index];
+}
+
+/* ---------------- FUN CARDS ---------------- */
+
+const cards = [
+    { emoji: "😂", text: "Make someone laugh in the next 30 seconds." },
+    { emoji: "🌟", text: "Name three things that make a great friend." },
+    { emoji: "🎵", text: "Hum a song and let others guess it." },
+    { emoji: "🧠", text: "Share an interesting fact you know." },
+    { emoji: "🎭", text: "Act out an emotion without speaking." },
+    { emoji: "💬", text: "Ask another player a fun, friendly question." },
+    { emoji: "🌍", text: "Name three places you want to visit." },
+    { emoji: "🦸", text: "Invent your own superhero name and power." },
+    { emoji: "🎨", text: "Describe your dream room in three words." },
+    { emoji: "🏆", text: "Share one achievement you feel proud of." },
+    { emoji: "🐒", text: "Act like a monkey for ten seconds." },
+    { emoji: "🎤", text: "Give a dramatic speech about your favourite snack." }
+];
+
+let previousCard = -1;
+
+function drawCard() {
+    let index;
+
+    do {
+        index = Math.floor(Math.random() * cards.length);
+    } while (index === previousCard && cards.length > 1);
+
+    previousCard = index;
+
+    document.getElementById("cardEmoji").textContent = cards[index].emoji;
+    document.getElementById("cardPrompt").textContent = cards[index].text;
+}
+
+/* ---------------- ACTION DICE ---------------- */
+
+const diceActivities = [
+    "Tell a joke!",
+    "Do a silly dance!",
+    "Name five animals!",
+    "Sing a short song!",
+    "Give a compliment!",
+    "Make a funny face!"
+];
+
+const diceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+
+let rolling = false;
+
+function rollDice() {
+    if (rolling) return;
+
+    rolling = true;
+    const button = document.getElementById("rollButton");
+    const face = document.getElementById("diceFace");
+    const result = document.getElementById("diceResult");
+
+    button.disabled = true;
+    result.textContent = "Rolling...";
+
+    let count = 0;
+
+    const interval = setInterval(() => {
+        face.textContent = diceFaces[Math.floor(Math.random() * 6)];
+        count++;
+
+        if (count >= 12) {
+            clearInterval(interval);
+
+            const number = Math.floor(Math.random() * 6);
+            face.textContent = diceFaces[number];
+            result.textContent = "Your activity: " + diceActivities[number];
+
+            rolling = false;
+            button.disabled = false;
+        }
+    }, 100);
+}
+
+/* ---------------- SCOREBOARD ---------------- */
+
+let score1 = 0;
+let score2 = 0;
+
+function addPoint(player) {
+    if (player === 1) {
+        score1++;
+    } else {
+        score2++;
+    }
+
+    updateScores();
+}
+
+function updateScores() {
+    document.getElementById("score1").textContent = score1;
+    document.getElementById("score2").textContent = score2;
+
+    const message = document.getElementById("scoreMessage");
+
+    if (score1 > score2) {
+        message.textContent = "🏆 Player 1 is in the lead!";
+    } else if (score2 > score1) {
+        message.textContent = "🏆 Player 2 is in the lead!";
+    } else {
+        message.textContent = "🤝 It's a tie! Keep playing!";
+    }
+}
+
+function resetScores() {
+    score1 = 0;
+    score2 = 0;
+    updateScores();
+    document.getElementById("scoreMessage").textContent =
+        "Scores reset! Let the fun begin again.";
+}
+</script>
+
+</body>
+</html>
+
